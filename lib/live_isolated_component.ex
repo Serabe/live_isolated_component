@@ -14,16 +14,18 @@ defmodule LiveIsolatedComponent do
   """
 
   import Phoenix.ConnTest, only: [build_conn: 0]
-  import Phoenix.LiveViewTest, only: [live_isolated: 3]
+  import Phoenix.LiveViewTest, only: [live_isolated: 3, render: 1]
 
   @module_key "live_isolated_component_module"
   @assigns_key "live_isolated_component_assigns"
+  @assign_updates_event "live_isolated_component_update_assigns_event"
 
   defmodule View do
     use Phoenix.LiveView
 
     @module_key "live_isolated_component_module"
     @assigns_key "live_isolated_component_assigns"
+    @assign_updates_event "live_isolated_component_update_assigns_event"
 
     def mount(_params, session, socket) do
       socket =
@@ -43,6 +45,30 @@ defmodule LiveIsolatedComponent do
           />
       """
     end
+
+    def handle_info({@assign_updates_event, keyword_or_map}, socket) do
+      {:noreply, component_assign(socket, keyword_or_map)}
+    end
+
+    defp component_assign(socket, map) when is_map(map) do
+      update(socket, :assigns, &Map.merge(&1, map))
+    end
+
+    defp component_assign(socket, other_enum) do
+      component_assign(socket, Enum.into(other_enum, %{}))
+    end
+  end
+
+  def live_assign(view, keyword_or_map) do
+    send(view.pid, {@assign_updates_event, keyword_or_map})
+
+    render(view)
+
+    view
+  end
+
+  def live_assign(view, key, value) do
+    live_assign(view, %{key => value})
   end
 
   defmacro live_isolated_component(module, assigns) do
