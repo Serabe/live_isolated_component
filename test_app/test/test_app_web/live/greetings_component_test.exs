@@ -6,14 +6,20 @@ defmodule TestAppWeb.Live.GreetingsComponentTest do
   import LiveIsolatedComponent
   import Phoenix.LiveViewTest
 
-  test "displays name" do
+  test "displays name (keywords)" do
+    {:ok, view, _html} = live_isolated_component(GreetingsComponent, assigns: %{name: "Sergio"})
+
+    assert_text(view, "Hello, Sergio")
+  end
+
+  test "displays name (map)" do
     {:ok, view, _html} = live_isolated_component(GreetingsComponent, %{name: "Sergio"})
 
     assert_text(view, "Hello, Sergio")
   end
 
   test "name can be changed via live_assign/3" do
-    {:ok, view, _html} = live_isolated_component(GreetingsComponent, %{name: "Sergio"})
+    {:ok, view, _html} = live_isolated_component(GreetingsComponent, assigns: %{name: "Sergio"})
 
     assert_text(view, "Hello, Sergio")
 
@@ -23,7 +29,7 @@ defmodule TestAppWeb.Live.GreetingsComponentTest do
   end
 
   test "name can be changed via live_assign/2 (map)" do
-    {:ok, view, _html} = live_isolated_component(GreetingsComponent, %{name: "Sergio"})
+    {:ok, view, _html} = live_isolated_component(GreetingsComponent, assigns: %{name: "Sergio"})
 
     assert_text(view, "Hello, Sergio")
 
@@ -33,7 +39,7 @@ defmodule TestAppWeb.Live.GreetingsComponentTest do
   end
 
   test "name can be changed via live_assign/2 (keywords)" do
-    {:ok, view, _html} = live_isolated_component(GreetingsComponent, %{name: "Sergio"})
+    {:ok, view, _html} = live_isolated_component(GreetingsComponent, assigns: %{name: "Sergio"})
 
     assert_text(view, "Hello, Sergio")
 

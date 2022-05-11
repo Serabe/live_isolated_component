@@ -16,22 +16,25 @@ defmodule LiveIsolatedComponent do
   import Phoenix.ConnTest, only: [build_conn: 0]
   import Phoenix.LiveViewTest, only: [live_isolated: 3, render: 1]
 
-  @module_key "live_isolated_component_module"
   @assigns_key "live_isolated_component_assigns"
   @assign_updates_event "live_isolated_component_update_assigns_event"
+  @handle_event_key "live_isolated_component_handle_event"
+  @module_key "live_isolated_component_module"
 
   defmodule View do
     use Phoenix.LiveView
 
-    @module_key "live_isolated_component_module"
     @assigns_key "live_isolated_component_assigns"
     @assign_updates_event "live_isolated_component_update_assigns_event"
+    @handle_event_key "live_isolated_component_handle_event"
+    @module_key "live_isolated_component_module"
 
     def mount(_params, session, socket) do
       socket =
         socket
         |> assign(:module, session[@module_key])
         |> assign(:assigns, session[@assigns_key])
+        |> assign(:handle_event, session[@handle_event_key])
 
       {:ok, socket}
     end
@@ -71,12 +74,15 @@ defmodule LiveIsolatedComponent do
     live_assign(view, %{key => value})
   end
 
-  defmacro live_isolated_component(module, assigns) do
+  defmacro live_isolated_component(module, opts) do
     quote do
+      opts = if is_map(unquote(opts)), do: [assigns: unquote(opts)], else: unquote(opts)
+
       live_isolated(build_conn(), View,
         session: %{
           unquote(@module_key) => unquote(module),
-          unquote(@assigns_key) => unquote(assigns)
+          unquote(@assigns_key) => Keyword.get(opts, :assigns, %{}),
+          unquote(@handle_event_key) => Keyword.get(opts, :handle_event)
         }
       )
     end
