@@ -51,8 +51,15 @@ defmodule LiveIsolatedComponent do
 
     def handle_event(event, params, socket) do
       handle_event = get_handle_event(socket)
+      original_assigns = socket.assigns
 
-      handle_event.(event, params, socket)
+      case handle_event.(event, params, normalize_socket(socket, original_assigns)) do
+        {:noreply, socket} ->
+          {:noreply, denormalize_socket(socket, original_assigns)}
+
+        {:reply, map, socket} ->
+          {:reply, map, denormalize_socket(socket, original_assigns)}
+      end
     end
 
     def handle_info({@assign_updates_event, keyword_or_map}, socket) do
@@ -78,6 +85,15 @@ defmodule LiveIsolatedComponent do
         _ ->
           fn _event, _params, socket -> {:noreply, socket} end
       end
+    end
+
+    defp denormalize_socket(socket, original_assigns) do
+      socket |> Map.put(:assigns, original_assigns) |> assign(:assigns, socket.assigns)
+    end
+
+    defp normalize_socket(socket, original_assigns) do
+      assign_like_structure = Map.put(original_assigns.assigns, :__changed__, %{})
+      Map.put(socket, :assigns, assign_like_structure)
     end
   end
 

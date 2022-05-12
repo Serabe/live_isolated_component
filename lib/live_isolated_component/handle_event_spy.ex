@@ -1,10 +1,13 @@
 defmodule LiveIsolatedComponent.HandleEventSpy do
-  def new do
+  def new(default_impl \\ fn _e, _p, s -> {:noreply, s} end) do
     {:ok, spy} = Agent.start_link(fn -> [] end)
 
     callback = fn event, params, socket ->
-      Agent.update(spy, fn list -> [{event, params, socket} | list] end)
-      {:noreply, socket}
+      arguments = {event, params, socket}
+      result = default_impl.(event, params, socket)
+      Agent.update(spy, fn list -> [%{arguments: arguments, result: result} | list] end)
+
+      result
     end
 
     {spy, callback}
