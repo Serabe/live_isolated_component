@@ -66,6 +66,15 @@ defmodule LiveIsolatedComponent do
       {:noreply, component_assign(socket, keyword_or_map)}
     end
 
+    def handle_info(event, socket) do
+      handle_info = get_handle_info(socket)
+      original_assigns = socket.assigns
+
+      {:noreply, socket} = handle_info.(event, normalize_socket(socket, original_assigns))
+
+      {:noreply, denormalize_socket(socket, original_assigns)}
+    end
+
     defp component_assign(socket, map) when is_map(map) do
       update(socket, :assigns, &Map.merge(&1, map))
     end
@@ -87,8 +96,23 @@ defmodule LiveIsolatedComponent do
       end
     end
 
+    def get_handle_info(%{assigns: %{callbacks_agent: agent}}) do
+      case Agent.get(agent, & &1) do
+        %{handle_info: nil} ->
+          fn _event, socket -> {:noreply, socket} end
+
+        %{handle_info: handler} ->
+          handler
+
+        _ ->
+          fn _event, socket -> {:noreply, socket} end
+      end
+    end
+
     defp denormalize_socket(socket, original_assigns) do
-      socket |> Map.put(:assigns, original_assigns) |> assign(:assigns, socket.assigns)
+      socket
+      |> Map.put(:assigns, original_assigns)
+      |> assign(:assigns, socket.assigns)
     end
 
     defp normalize_socket(socket, original_assigns) do
@@ -116,7 +140,8 @@ defmodule LiveIsolatedComponent do
       {:ok, callbacks_agent} =
         Agent.start_link(fn ->
           %{
-            handle_event: Keyword.get(opts, :handle_event)
+            handle_event: Keyword.get(opts, :handle_event),
+            handle_info: Keyword.get(opts, :handle_info)
           }
         end)
 

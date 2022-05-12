@@ -44,6 +44,7 @@ defmodule TestAppWeb.Live.SimpleButtonComponentTest do
     |> render_click()
 
     assert has_element?(view, "button", "My blue-ish button")
+    assert HandleEventSpy.received_anything?(spy)
   end
 
   test "we get to spy arguments" do
