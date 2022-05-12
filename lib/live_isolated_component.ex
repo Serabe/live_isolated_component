@@ -18,7 +18,7 @@ defmodule LiveIsolatedComponent do
 
   @assigns_key "live_isolated_component_assigns"
   @assign_updates_event "live_isolated_component_update_assigns_event"
-  @handle_event_key "live_isolated_component_handle_event"
+  @callbacks_agent_key "live_isolated_component_callbacks_agent"
   @module_key "live_isolated_component_module"
 
   defmodule View do
@@ -26,7 +26,7 @@ defmodule LiveIsolatedComponent do
 
     @assigns_key "live_isolated_component_assigns"
     @assign_updates_event "live_isolated_component_update_assigns_event"
-    @handle_event_key "live_isolated_component_handle_event"
+    @callbacks_agent_key "live_isolated_component_callbacks_agent"
     @module_key "live_isolated_component_module"
 
     def mount(_params, session, socket) do
@@ -34,7 +34,7 @@ defmodule LiveIsolatedComponent do
         socket
         |> assign(:module, session[@module_key])
         |> assign(:assigns, session[@assigns_key])
-        |> assign(:handle_event, session[@handle_event_key])
+        |> assign(:callbacks_agent, session[@callbacks_agent_key])
 
       {:ok, socket}
     end
@@ -49,6 +49,12 @@ defmodule LiveIsolatedComponent do
       """
     end
 
+    def handle_event(event, params, socket) do
+      handle_event = get_handle_event(socket)
+
+      handle_event.(event, params, socket)
+    end
+
     def handle_info({@assign_updates_event, keyword_or_map}, socket) do
       {:noreply, component_assign(socket, keyword_or_map)}
     end
@@ -59,6 +65,19 @@ defmodule LiveIsolatedComponent do
 
     defp component_assign(socket, other_enum) do
       component_assign(socket, Enum.into(other_enum, %{}))
+    end
+
+    defp get_handle_event(%{assigns: %{callbacks_agent: agent}}) do
+      case Agent.get(agent, & &1) do
+        %{handle_event: nil} ->
+          fn _event, _params, socket -> {:noreply, socket} end
+
+        %{handle_event: handler} ->
+          handler
+
+        _ ->
+          fn _event, _params, socket -> {:noreply, socket} end
+      end
     end
   end
 
@@ -78,11 +97,18 @@ defmodule LiveIsolatedComponent do
     quote do
       opts = if is_map(unquote(opts)), do: [assigns: unquote(opts)], else: unquote(opts)
 
+      {:ok, callbacks_agent} =
+        Agent.start_link(fn ->
+          %{
+            handle_event: Keyword.get(opts, :handle_event)
+          }
+        end)
+
       live_isolated(build_conn(), View,
         session: %{
           unquote(@module_key) => unquote(module),
           unquote(@assigns_key) => Keyword.get(opts, :assigns, %{}),
-          unquote(@handle_event_key) => Keyword.get(opts, :handle_event)
+          unquote(@callbacks_agent_key) => callbacks_agent
         }
       )
     end
