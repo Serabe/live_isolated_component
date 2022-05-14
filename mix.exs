@@ -3,6 +3,11 @@ defmodule LiveIsolatedComponent.MixProject do
 
   def project do
     [
+      dialyzer: [
+        ignore_warnings: ".dialyzer_ignore.exs",
+        list_unused_filters: true,
+        plt_file: {:no_warn, "live_isolated_component.plt"}
+      ],
       app: :live_isolated_component,
       version: "0.1.0",
       elixir: "~> 1.13",
@@ -21,7 +26,11 @@ defmodule LiveIsolatedComponent.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:phoenix, "~> 1.6.7"},
+      {:credo, "~> 1.6.4", only: :dev, runtime: false},
+      {:mix_test_watch, "~> 1.1.0", only: :dev, runtime: false},
+      {:dialyxir, "~> 1.1.0", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.28.4", only: :dev, runtime: false},
+      {:phoenix, "~> 1.6.8"},
       {:phoenix_live_view, "~> 0.17.9"}
     ]
   end
