@@ -3,38 +3,38 @@ defmodule TestAppWeb.Live.SimpleButtonComponentTest do
 
   alias TestAppWeb.Live.SimpleButtonComponent
 
-  alias LiveIsolatedComponent.HandleEventSpy
+  alias LiveIsolatedComponent.Spy
   alias Phoenix.LiveView, as: LV
 
   import LiveIsolatedComponent
   import Phoenix.LiveViewTest
 
   test "sends a @on_click event" do
-    {spy, callback} = HandleEventSpy.new()
+    handle_event_spy = Spy.handle_event()
 
     {:ok, view, _html} =
       live_isolated_component(SimpleButtonComponent,
         assigns: %{on_click: :i_was_clicked},
-        handle_event: callback
+        handle_event: handle_event_spy.callback
       )
 
     view
     |> element("button")
     |> render_click()
 
-    assert HandleEventSpy.received_anything?(spy)
+    assert Spy.any_event_received?(handle_event_spy)
   end
 
   test "executes the default impl for spy" do
-    {spy, callback} =
-      HandleEventSpy.new(fn _event, _params, socket ->
+    handle_event_spy =
+      Spy.handle_event(fn _event, _params, socket ->
         {:noreply, LV.assign(socket, :description, "blue-ish")}
       end)
 
     {:ok, view, _html} =
       live_isolated_component(SimpleButtonComponent,
         assigns: %{on_click: :i_was_clicked, description: "red-ish"},
-        handle_event: callback
+        handle_event: handle_event_spy.callback
       )
 
     assert has_element?(view, "button", "My red-ish button")
@@ -44,34 +44,34 @@ defmodule TestAppWeb.Live.SimpleButtonComponentTest do
     |> render_click()
 
     assert has_element?(view, "button", "My blue-ish button")
-    assert HandleEventSpy.received_anything?(spy)
+    assert Spy.any_event_received?(handle_event_spy)
   end
 
   test "we get to spy arguments" do
-    {spy, callback} = HandleEventSpy.new()
+    handle_event_spy = Spy.handle_event()
 
     {:ok, view, _html} =
       live_isolated_component(SimpleButtonComponent,
         assigns: %{on_click: :i_was_clicked},
-        handle_event: callback
+        handle_event: handle_event_spy.callback
       )
 
     view |> element("button") |> render_click()
 
-    assert %{arguments: {"i_was_clicked", _p, _s}} = HandleEventSpy.last_event(spy)
+    assert %{arguments: {"i_was_clicked", _p, _s}} = Spy.last_event(handle_event_spy)
   end
 
   test "we get to spy result" do
-    {spy, callback} = HandleEventSpy.new()
+    handle_event_spy = Spy.handle_event()
 
     {:ok, view, _html} =
       live_isolated_component(SimpleButtonComponent,
         assigns: %{on_click: :i_was_clicked},
-        handle_event: callback
+        handle_event: handle_event_spy.callback
       )
 
     view |> element("button") |> render_click()
 
-    assert %{result: {:noreply, _s}} = HandleEventSpy.last_event(spy)
+    assert %{result: {:noreply, _s}} = Spy.last_event(handle_event_spy)
   end
 end
