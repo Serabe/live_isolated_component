@@ -1,0 +1,35 @@
+name: "Setup Elixir"
+description: "Sets up Elixir and all the caches"
+
+inputs:
+  elixir-version:
+    required: true
+    description: "Elixir version to install"
+    default: "1.13"
+  otp-version:
+    required: true
+    description: "Erlang/OTP version to install"
+    default: "24.2"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v2
+    - name: Set up Elixir
+      uses: erlef/setup-beam@988e02bfe678367a02564f65ca2e37726dc0268f
+      with:
+        elixir-version: "${{ inputs.elixir-version }}"
+        otp-version: "${{ inputs.otp-version }}"
+    - name: Restore mix deps cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          deps
+          _build
+          !_build/prod
+          priv/plts
+        key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+        restore-keys: ${{ runner.os }}-mix-
+    - name: Install deps
+      shell: bash
+      run: mix deps.get
