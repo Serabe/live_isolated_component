@@ -24,3 +24,6 @@ live_isolated_component-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+# dialyzer plt
+live_isolated_component.plt
+live_isolated_component.plt.hash

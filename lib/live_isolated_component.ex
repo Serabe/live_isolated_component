@@ -1,16 +1,6 @@
 defmodule LiveIsolatedComponent do
   @moduledoc """
-  Documentation for `LiveIsolatedComponent`.
-  """
-
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> LiveIsolatedComponent.hello()
-      :world
-
+  Functions for testing LiveView stateful components in isolation easily.
   """
 
   import Phoenix.ConnTest, only: [build_conn: 0]
@@ -22,6 +12,8 @@ defmodule LiveIsolatedComponent do
   @module_key "live_isolated_component_module"
 
   defmodule View do
+    @moduledoc false
+
     use Phoenix.LiveView
 
     @assigns_key "live_isolated_component_assigns"
@@ -121,6 +113,13 @@ defmodule LiveIsolatedComponent do
     end
   end
 
+  @doc """
+  Updates the assigns of the component.
+
+      {:ok, view, _html} = live_isolated_component(SomeComponent, assigns: %{description: "blue"})
+
+      live_assign(view, %{description: "red"})
+  """
   def live_assign(view, keyword_or_map) do
     send(view.pid, {@assign_updates_event, keyword_or_map})
 
@@ -129,11 +128,27 @@ defmodule LiveIsolatedComponent do
     view
   end
 
+  @doc """
+  Updates the key in assigns of the component.
+
+      {:ok, view, _html} = live_isolated_component(SomeComponent, assigns: %{description: "blue"})
+
+      live_assign(view, :description, "red")
+  """
   def live_assign(view, key, value) do
     live_assign(view, %{key => value})
   end
 
-  defmacro live_isolated_component(module, opts) do
+  @doc """
+  Renders the given component in isolation and live so you can tested like you would
+  test any LiveView.
+
+  It accepts the following options:
+    - `:assigns` accepts a map of assigns for the component.
+    - `:handle_event` accepts a handler for the `handle_event` callback in the LiveView.
+    - `:handle_info` acceptas a handler for the `handle_info` callback in the LiveView.
+  """
+  defmacro live_isolated_component(module, opts \\ %{}) do
     quote do
       opts = if is_map(unquote(opts)), do: [assigns: unquote(opts)], else: unquote(opts)
 

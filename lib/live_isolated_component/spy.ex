@@ -1,4 +1,9 @@
 defmodule LiveIsolatedComponent.Spy do
+  @moduledoc """
+  Collection of utilities to create spies for `handle_event` and
+  `handle_info` spies.
+  """
+
   @doc """
   Creates an spy for a handle_event.
 

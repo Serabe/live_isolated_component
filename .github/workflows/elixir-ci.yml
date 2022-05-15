@@ -1,0 +1,30 @@
+name: Elixir CI
+
+on:
+  push:
+    branches: [main, staging]
+  pull_request:
+    branches: [main, staging]
+
+jobs:
+  test:
+    name: Build and test
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Elixir
+        uses: ./.github/actions/setup-elixir
+        with:
+          elixir-version: "1.13"
+          otp-version: "24.2"
+      - run: mix format --check-formatted
+      - run: mix test
+      - run: mix credo --strict
+      - run: mix compile --error-on-warnings
+      - run: mix dialyzer
+      - name: Run test app tests
+        run: |
+          cd test_app
+          mix deps.get
+          mix test
