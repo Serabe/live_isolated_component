@@ -30,7 +30,7 @@ defmodule LiveIsolatedComponent.MixProject do
       {:mix_test_watch, "~> 1.1.0", only: :dev, runtime: false},
       {:dialyxir, "~> 1.1.0", only: :dev, runtime: false},
       {:ex_doc, "~> 0.28.4", only: :dev, runtime: false},
-      {:phoenix, "~> 1.6.8"},
+      {:phoenix, "~> 1.6.0"},
       {:phoenix_live_view, "~> 0.17.9"}
     ]
   end
