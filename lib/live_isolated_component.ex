@@ -12,6 +12,8 @@ defmodule LiveIsolatedComponent do
   @module_key "live_isolated_component_module"
 
   defmodule View do
+    @moduledoc false
+
     use Phoenix.LiveView
 
     @assigns_key "live_isolated_component_assigns"
