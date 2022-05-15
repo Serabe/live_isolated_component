@@ -1,6 +1,8 @@
 defmodule LiveIsolatedComponent.MixProject do
   use Mix.Project
 
+  @version "0.1.0"
+
   def project do
     [
       dialyzer: [
@@ -9,7 +11,8 @@ defmodule LiveIsolatedComponent.MixProject do
         plt_file: {:no_warn, "live_isolated_component.plt"}
       ],
       app: :live_isolated_component,
-      version: "0.1.0",
+      package: package(),
+      version: @version,
       elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
       deps: deps()
@@ -20,6 +23,15 @@ defmodule LiveIsolatedComponent.MixProject do
   def application do
     [
       extra_applications: [:logger]
+    ]
+  end
+
+  def package do
+    [
+      maintainers: ["Sergio Arbeo"],
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/Serabe/live_isolated_component"},
+      files: ~w(lib)
     ]
   end
 
