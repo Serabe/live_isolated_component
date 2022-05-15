@@ -1,5 +1,6 @@
 defmodule LiveIsolatedComponent do
   @moduledoc """
+  Functions for testing LiveView stateful components in isolation easily.
   """
 
   import Phoenix.ConnTest, only: [build_conn: 0]
