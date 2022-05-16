@@ -6,9 +6,6 @@ on:
   pull_request:
     branches: [main, staging]
 
-env:
-  MIX_ENV: test
-
 jobs:
   test:
     name: Build and test
