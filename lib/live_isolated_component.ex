@@ -6,27 +6,27 @@ defmodule LiveIsolatedComponent do
   import Phoenix.ConnTest, only: [build_conn: 0]
   import Phoenix.LiveViewTest, only: [live_isolated: 3, render: 1]
 
-  @assigns_key "live_isolated_component_assigns"
   @assign_updates_event "live_isolated_component_update_assigns_event"
-  @callbacks_agent_key "live_isolated_component_callbacks_agent"
   @module_key "live_isolated_component_module"
+  @store_agent_key "live_isolated_component_store_agent"
 
   defmodule View do
     @moduledoc false
 
     use Phoenix.LiveView
 
-    @assigns_key "live_isolated_component_assigns"
     @assign_updates_event "live_isolated_component_update_assigns_event"
-    @callbacks_agent_key "live_isolated_component_callbacks_agent"
     @module_key "live_isolated_component_module"
+    @store_agent_key "live_isolated_component_store_agent"
 
     def mount(_params, session, socket) do
       socket =
         socket
+        |> assign(:store_agent, session[@store_agent_key])
         |> assign(:module, session[@module_key])
-        |> assign(:assigns, session[@assigns_key])
-        |> assign(:callbacks_agent, session[@callbacks_agent_key])
+        |> then(fn socket ->
+          assign(socket, :assigns, get_assigns(socket))
+        end)
 
       {:ok, socket}
     end
@@ -54,8 +54,10 @@ defmodule LiveIsolatedComponent do
       end
     end
 
-    def handle_info({@assign_updates_event, keyword_or_map}, socket) do
-      {:noreply, component_assign(socket, keyword_or_map)}
+    def handle_info({@assign_updates_event, pid}, socket) do
+      values = Agent.get(pid, & &1)
+      Agent.stop(pid)
+      {:noreply, assign(socket, :assigns, values)}
     end
 
     def handle_info(event, socket) do
@@ -67,37 +69,21 @@ defmodule LiveIsolatedComponent do
       {:noreply, denormalize_socket(socket, original_assigns)}
     end
 
-    defp component_assign(socket, map) when is_map(map) do
-      update(socket, :assigns, &Map.merge(&1, map))
+    defp get_assigns(socket), do: get_data(socket, :assigns, %{})
+
+    defp get_handle_event(socket) do
+      get_data(socket, :handle_event, fn _event, _params, socket -> {:noreply, socket} end)
     end
 
-    defp component_assign(socket, other_enum) do
-      component_assign(socket, Enum.into(other_enum, %{}))
+    def get_handle_info(socket) do
+      get_data(socket, :handle_info, fn _event, socket -> {:noreply, socket} end)
     end
 
-    defp get_handle_event(%{assigns: %{callbacks_agent: agent}}) do
+    defp get_data(%{assigns: %{store_agent: agent}}, key, default_value) do
       case Agent.get(agent, & &1) do
-        %{handle_event: nil} ->
-          fn _event, _params, socket -> {:noreply, socket} end
-
-        %{handle_event: handler} ->
-          handler
-
-        _ ->
-          fn _event, _params, socket -> {:noreply, socket} end
-      end
-    end
-
-    def get_handle_info(%{assigns: %{callbacks_agent: agent}}) do
-      case Agent.get(agent, & &1) do
-        %{handle_info: nil} ->
-          fn _event, socket -> {:noreply, socket} end
-
-        %{handle_info: handler} ->
-          handler
-
-        _ ->
-          fn _event, socket -> {:noreply, socket} end
+        %{^key => nil} -> default_value
+        %{^key => value} -> value
+        _ -> default_value
       end
     end
 
@@ -121,7 +107,11 @@ defmodule LiveIsolatedComponent do
       live_assign(view, %{description: "red"})
   """
   def live_assign(view, keyword_or_map) do
-    send(view.pid, {@assign_updates_event, keyword_or_map})
+    # We need to use agents because fns are not serializable.
+    # The LV will stop this agent
+    {:ok, pid} = Agent.start(fn -> Enum.into(keyword_or_map, %{}) end)
+
+    send(view.pid, {@assign_updates_event, pid})
 
     render(view)
 
@@ -152,9 +142,11 @@ defmodule LiveIsolatedComponent do
     quote do
       opts = if is_map(unquote(opts)), do: [assigns: unquote(opts)], else: unquote(opts)
 
-      {:ok, callbacks_agent} =
+      # We need to use agents because fns are not serializable.
+      {:ok, store_agent} =
         Agent.start_link(fn ->
           %{
+            assigns: opts |> Keyword.get(:assigns, %{}) |> Enum.into(%{}),
             handle_event: Keyword.get(opts, :handle_event),
             handle_info: Keyword.get(opts, :handle_info)
           }
@@ -163,8 +155,7 @@ defmodule LiveIsolatedComponent do
       live_isolated(build_conn(), View,
         session: %{
           unquote(@module_key) => unquote(module),
-          unquote(@assigns_key) => Keyword.get(opts, :assigns, %{}),
-          unquote(@callbacks_agent_key) => callbacks_agent
+          unquote(@store_agent_key) => store_agent
         }
       )
     end

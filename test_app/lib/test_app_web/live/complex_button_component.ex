@@ -17,7 +17,7 @@ defmodule TestAppWeb.Live.ComplexButtonComponent do
     """
   end
 
-  def handle_event("clicked", params, socket) do
+  def handle_event("clicked", _params, socket) do
     event = socket.assigns.on_click || "on_click"
 
     socket = update(socket, :count, &(&1 + 1))
