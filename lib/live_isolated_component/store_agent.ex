@@ -1,4 +1,5 @@
 defmodule LiveIsolatedComponent.StoreAgent do
+  @moduledoc false
   import Phoenix.LiveView.Helpers, only: [sigil_H: 2]
 
   def start(fun) do
