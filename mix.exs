@@ -8,7 +8,8 @@ defmodule LiveIsolatedComponent.MixProject do
       dialyzer: [
         ignore_warnings: ".dialyzer_ignore.exs",
         list_unused_filters: true,
-        plt_file: {:no_warn, "live_isolated_component.plt"}
+        plt_core_path: "priv/plts",
+        plt_file: {:no_warn, "priv/plts/live_isolated_component.plt"}
       ],
       app: :live_isolated_component,
       package: package(),

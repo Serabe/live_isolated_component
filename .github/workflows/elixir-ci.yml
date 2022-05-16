@@ -11,18 +11,33 @@ jobs:
     name: Build and test
     runs-on: ubuntu-18.04
 
+    strategy:
+      matrix:
+        elixir: [1.13.0]
+        otp: [24.2]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Elixir
         uses: ./.github/actions/setup-elixir
         with:
-          elixir-version: "1.13"
-          otp-version: "24.2"
+          elixir-version: ${{ matrix.elixir }}
+          otp-version: ${{ matrix.otp }}
       - run: mix format --check-formatted
       - run: mix test
       - run: mix credo --strict
       - run: mix compile --error-on-warnings
-      - run: mix dialyzer
+      - name: Retrieve PLT Cache
+        uses: actions/cache@v1
+        id: plt-cache
+        with:
+          path: priv/plts
+          key: ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-plts-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+      - name: Create PLTs
+        if: steps.plt-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p priv/plts
+          mix dialyzer --plt
+      - run: mix dialyzer --no-check --halt-exit-status
       - name: Run test app tests
         run: |
           cd test_app
