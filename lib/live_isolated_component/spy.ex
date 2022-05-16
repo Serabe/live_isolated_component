@@ -81,7 +81,10 @@ defmodule LiveIsolatedComponent.Spy do
   def last_event(%{spy: spy}) do
     :sys.get_state(spy)
 
-    Agent.get(spy, &hd/1)
+    Agent.get(spy, fn
+      [] -> nil
+      [hd | _tail] -> hd
+    end)
   end
 
   @doc """

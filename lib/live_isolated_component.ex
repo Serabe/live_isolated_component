@@ -37,7 +37,9 @@ defmodule LiveIsolatedComponent do
           id="some-unique-id"
           module={@module}
           {@assigns}
-          />
+          >
+          <%= get_inner_block(@store_agent).(@assigns) %>
+        </.live_component>
       """
     end
 
@@ -69,22 +71,33 @@ defmodule LiveIsolatedComponent do
       {:noreply, denormalize_socket(socket, original_assigns)}
     end
 
-    defp get_assigns(socket), do: get_data(socket, :assigns, %{})
+    defp get_assigns(socket_or_pid), do: get_data(socket_or_pid, :assigns, %{})
 
-    defp get_handle_event(socket) do
-      get_data(socket, :handle_event, fn _event, _params, socket -> {:noreply, socket} end)
+    defp get_handle_event(socket_or_pid) do
+      get_data(socket_or_pid, :handle_event, fn _event, _params, socket -> {:noreply, socket} end)
     end
 
-    def get_handle_info(socket) do
-      get_data(socket, :handle_info, fn _event, socket -> {:noreply, socket} end)
+    defp get_handle_info(socket_or_pid) do
+      get_data(socket_or_pid, :handle_info, fn _event, socket -> {:noreply, socket} end)
     end
 
-    defp get_data(%{assigns: %{store_agent: agent}}, key, default_value) do
+    defp get_inner_block(socket_or_pid) do
+      get_data(socket_or_pid, :inner_block, fn assigns ->
+        ~H"""
+        """
+      end)
+    end
+
+    defp get_data(agent, key, default_value) when is_pid(agent) do
       case Agent.get(agent, & &1) do
         %{^key => nil} -> default_value
         %{^key => value} -> value
         _ -> default_value
       end
+    end
+
+    defp get_data(%{assigns: %{store_agent: agent}}, key, default_value) do
+      get_data(agent, key, default_value)
     end
 
     defp denormalize_socket(socket, original_assigns) do
@@ -147,6 +160,7 @@ defmodule LiveIsolatedComponent do
         Agent.start_link(fn ->
           %{
             assigns: opts |> Keyword.get(:assigns, %{}) |> Enum.into(%{}),
+            inner_block: opts |> Keyword.get(:content) |> LiveIsolatedComponent.as_slot(),
             handle_event: Keyword.get(opts, :handle_event),
             handle_info: Keyword.get(opts, :handle_info)
           }
@@ -160,4 +174,8 @@ defmodule LiveIsolatedComponent do
       )
     end
   end
+
+  @doc false
+  def as_slot(content) when is_function(content), do: content
+  def as_slot(content), do: fn _assigns -> content end
 end

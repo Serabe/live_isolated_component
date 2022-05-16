@@ -69,3 +69,44 @@ view
 
 assert %{arguments: {:i_was_clicked, _p, _s}} = Spy.last_event(handle_event_spy)
 ```
+
+Testing `handle_info`:
+
+```elixir
+# alias LiveIsolatedComponent.Spy
+handle_info_spy = Spy.handle_info()
+
+{:ok, view, _html} = live_isolated_component(ComplexButton,
+    assigns: %{on_click: :i_was_clicked},
+    handle_info: handle_info_spy.callback
+  )
+
+view
+  |> element("button")
+  |> render_click()
+
+assert %{arguments: {:i_was_clicked, _s}} = Spy.last_event(handle_event_spy)
+```
+
+Passing a default slot:
+
+```elixir
+assigns = %{}
+{:ok, view, _html} = live_isolated_component(LabelComponent,
+    content: ~H"""
+    <div>Some content</div>
+    """
+  )
+```
+
+```elixir
+{:ok, view, _html} = live_isolated_component(LabelComponent,
+    assigns: %{name: "Sergio"},
+    content: fn assigns ->
+      # We get the assigns passed to `live_isolated_component`
+      ~H"""
+      <div><%= @name %></div>
+      """
+    end
+  )
+```
