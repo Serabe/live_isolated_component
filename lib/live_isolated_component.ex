@@ -6,6 +6,8 @@ defmodule LiveIsolatedComponent do
   import Phoenix.ConnTest, only: [build_conn: 0]
   import Phoenix.LiveViewTest, only: [live_isolated: 3, render: 1]
 
+  alias LiveIsolatedComponent.StoreAgent
+
   @assign_updates_event "live_isolated_component_update_assigns_event"
   @module_key "live_isolated_component_module"
   @store_agent_key "live_isolated_component_store_agent"
@@ -25,7 +27,7 @@ defmodule LiveIsolatedComponent do
         |> assign(:store_agent, session[@store_agent_key])
         |> assign(:module, session[@module_key])
         |> then(fn socket ->
-          assign(socket, :assigns, get_assigns(socket))
+          assign(socket, :assigns, socket |> store_agent_pid() |> StoreAgent.get_assigns())
         end)
 
       {:ok, socket}
@@ -38,13 +40,13 @@ defmodule LiveIsolatedComponent do
           module={@module}
           {@assigns}
           >
-          <%= get_inner_block(@store_agent).(@assigns) %>
+          <%= StoreAgent.get_inner_block(@store_agent).(@assigns) %>
         </.live_component>
       """
     end
 
     def handle_event(event, params, socket) do
-      handle_event = get_handle_event(socket)
+      handle_event = socket |> store_agent_pid() |> StoreAgent.get_handle_event()
       original_assigns = socket.assigns
 
       case handle_event.(event, params, normalize_socket(socket, original_assigns)) do
@@ -63,7 +65,7 @@ defmodule LiveIsolatedComponent do
     end
 
     def handle_info(event, socket) do
-      handle_info = get_handle_info(socket)
+      handle_info = socket |> store_agent_pid() |> StoreAgent.get_handle_info()
       original_assigns = socket.assigns
 
       {:noreply, socket} = handle_info.(event, normalize_socket(socket, original_assigns))
@@ -71,34 +73,7 @@ defmodule LiveIsolatedComponent do
       {:noreply, denormalize_socket(socket, original_assigns)}
     end
 
-    defp get_assigns(socket_or_pid), do: get_data(socket_or_pid, :assigns, %{})
-
-    defp get_handle_event(socket_or_pid) do
-      get_data(socket_or_pid, :handle_event, fn _event, _params, socket -> {:noreply, socket} end)
-    end
-
-    defp get_handle_info(socket_or_pid) do
-      get_data(socket_or_pid, :handle_info, fn _event, socket -> {:noreply, socket} end)
-    end
-
-    defp get_inner_block(socket_or_pid) do
-      get_data(socket_or_pid, :inner_block, fn assigns ->
-        ~H"""
-        """
-      end)
-    end
-
-    defp get_data(agent, key, default_value) when is_pid(agent) do
-      case Agent.get(agent, & &1) do
-        %{^key => nil} -> default_value
-        %{^key => value} -> value
-        _ -> default_value
-      end
-    end
-
-    defp get_data(%{assigns: %{store_agent: agent}}, key, default_value) do
-      get_data(agent, key, default_value)
-    end
+    defp store_agent_pid(%{assigns: %{store_agent: pid}}) when is_pid(pid), do: pid
 
     defp denormalize_socket(socket, original_assigns) do
       socket
@@ -148,6 +123,7 @@ defmodule LiveIsolatedComponent do
 
   It accepts the following options:
     - `:assigns` accepts a map of assigns for the component.
+    - `:content` accepts either the result of `sigil_H` or a function accepting an assigns and returning a hex template.
     - `:handle_event` accepts a handler for the `handle_event` callback in the LiveView.
     - `:handle_info` acceptas a handler for the `handle_info` callback in the LiveView.
   """
@@ -157,10 +133,10 @@ defmodule LiveIsolatedComponent do
 
       # We need to use agents because fns are not serializable.
       {:ok, store_agent} =
-        Agent.start_link(fn ->
+        StoreAgent.start(fn ->
           %{
-            assigns: opts |> Keyword.get(:assigns, %{}) |> Enum.into(%{}),
-            inner_block: opts |> Keyword.get(:content) |> LiveIsolatedComponent.as_slot(),
+            assigns: Keyword.get(opts, :assigns, %{}),
+            inner_block: Keyword.get(opts, :content),
             handle_event: Keyword.get(opts, :handle_event),
             handle_info: Keyword.get(opts, :handle_info)
           }
@@ -174,8 +150,4 @@ defmodule LiveIsolatedComponent do
       )
     end
   end
-
-  @doc false
-  def as_slot(content) when is_function(content), do: content
-  def as_slot(content), do: fn _assigns -> content end
 end
