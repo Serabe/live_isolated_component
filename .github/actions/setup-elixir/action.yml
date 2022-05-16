@@ -33,10 +33,10 @@ runs:
           !test_app/_build/prod
           priv/plts
         key: ${{ runner.os }}-${{ inputs.elixir-version }}-${{ inputs.otp-version }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
-    - name: Install Mix Dependencies
+    - name: Install Mix Base deps
       shell: bash
       if: steps.mix-cache.outputs.cache-hit != 'true'
       run: |
         mix local.rebar --force
         mix local.hex --force
-        mix deps.get
+    - run: mix deps.get
