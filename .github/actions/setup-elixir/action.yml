@@ -34,6 +34,7 @@ runs:
           priv/plts
         key: ${{ runner.os }}-${{ inputs.elixir-version }}-${{ inputs.otp-version }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
     - name: Install Mix Dependencies
+      shell: bash
       if: steps.mix-cache.outputs.cache-hit != 'true'
       run: |
         mix local.rebar --force
