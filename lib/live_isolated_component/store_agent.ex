@@ -55,8 +55,6 @@ defmodule LiveIsolatedComponent.StoreAgent do
   defp normalize_option({:assigns, assigns}) when is_map(assigns), do: {:assigns, assigns}
   defp normalize_option({:assigns, assigns}), do: {:assigns, Enum.into(assigns, %{})}
 
-  defp normalize_option({:inner_block, inner_block}), do: {:inner_block, as_slot(inner_block)}
-
   defp normalize_option({:slots, nil}), do: {:slots, %{}}
   defp normalize_option({:slots, slots}), do: {:slots, normalize_slots(slots)}
 
