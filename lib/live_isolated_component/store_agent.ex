@@ -62,14 +62,22 @@ defmodule LiveIsolatedComponent.StoreAgent do
 
   defp normalize_option(other), do: other
 
+  # When normalizing a slot defined multiple times (like using `<.col />` multiple times).
   defp normalize_slot({slot_name, descriptor}) when is_list(descriptor) do
-    {slot_name, Enum.map(descriptor, &normalize_slot({slot_name, &1}))}
+    {slot_name, Enum.map(descriptor, fn desc ->
+      {slot_name, desc}
+      |> normalize_slot()
+      |> elem(1)
+      |> hd()
+    end)}
   end
 
-  defp normalize_slot({slot_name, descriptor}) when is_function(descriptor, 1) do
+  # Normalized a slot defined by a function
+  defp normalize_slot({slot_name, descriptor}) when is_function(descriptor) do
     {slot_name, [%{__slot__: slot_name, inner_block: normalize_slot_inner_block(descriptor)}]}
   end
 
+  # Normalize a slot defined by a map
   defp normalize_slot({slot_name, %{inner_block: inner_block} = attrs}) do
     {slot_name,
      [
@@ -80,10 +88,13 @@ defmodule LiveIsolatedComponent.StoreAgent do
      ]}
   end
 
+  # In any other case...
   defp normalize_slot({slot_name, other}) do
     {slot_name, [%{__slot__: slot_name, inner_block: normalize_slot_inner_block(other)}]}
   end
 
+  # If an inner_block is a function of arity one we assume the user
+  # wants to receive the assigns from the live view
   defp normalize_slot_inner_block(fun) when is_function(fun, 1) do
     fn assigns ->
       result = fun.(assigns)
@@ -95,22 +106,27 @@ defmodule LiveIsolatedComponent.StoreAgent do
     end
   end
 
+  # If an inner_block is a function of arity 2, we just wrap it
+  # in an arity 1 function.
   defp normalize_slot_inner_block(fun) when is_function(fun, 2) do
     fn _assigns -> fun end
   end
 
+  # In any other case, just wrap it in two functions.
   defp normalize_slot_inner_block(other) do
     fn _assigns ->
-      fn _a, _b ->
+      fn _changed, _arguments ->
         other
       end
     end
   end
 
+  # Normalize slots when it's a map
   defp normalize_slots(slots) when is_map(slots) do
     Map.new(slots, &normalize_slot/1)
   end
 
+  # Normalize slots when it's not a map
   defp normalize_slots(slots), do: slots |> Enum.into(%{}) |> normalize_slots()
 
   def as_slot(content) when is_function(content), do: content
