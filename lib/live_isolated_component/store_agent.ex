@@ -62,12 +62,13 @@ defmodule LiveIsolatedComponent.StoreAgent do
 
   # When normalizing a slot defined multiple times (like using `<.col />` multiple times).
   defp normalize_slot({slot_name, descriptor}) when is_list(descriptor) do
-    {slot_name, Enum.map(descriptor, fn desc ->
-      {slot_name, desc}
-      |> normalize_slot()
-      |> elem(1)
-      |> hd()
-    end)}
+    {slot_name,
+     Enum.map(descriptor, fn desc ->
+       {slot_name, desc}
+       |> normalize_slot()
+       |> elem(1)
+       |> hd()
+     end)}
   end
 
   # Normalized a slot defined by a function
