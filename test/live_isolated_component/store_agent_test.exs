@@ -16,27 +16,6 @@ defmodule LiveIsolatedComponent.StoreAgentTest do
 
       assert pid |> StoreAgent.get_assigns() |> Map.equal?(%{a: "hola", b: "adios"})
     end
-
-    test "normalizes inner_block (fn)" do
-      inner_block = fn assigns ->
-        "Something with #{assigns}"
-      end
-
-      {:ok, pid} = StoreAgent.start(always(inner_block: inner_block))
-
-      assert inner_block == pid |> StoreAgent.get_inner_block()
-    end
-
-    test "normalizes inner_block (not a fun)" do
-      inner_block = "Some content"
-
-      {:ok, pid} = StoreAgent.start(always(inner_block: inner_block))
-
-      normalized_inner_block = StoreAgent.get_inner_block(pid)
-
-      assert is_function(normalized_inner_block)
-      assert inner_block == normalized_inner_block.(%{})
-    end
   end
 
   describe "get_assigns/1" do
@@ -101,34 +80,6 @@ defmodule LiveIsolatedComponent.StoreAgentTest do
       socket = %{a: :something}
 
       assert {:noreply, ^socket} = returned_handle_info.([], socket)
-    end
-  end
-
-  describe "get_inner_block/1" do
-    test "returns inner_block if present" do
-      returned_value = %{something: :darkside}
-      inner_block = fn _assigns -> returned_value end
-      {:ok, pid} = StoreAgent.start(always(inner_block: inner_block))
-
-      assert inner_block == StoreAgent.get_inner_block(pid)
-    end
-
-    test "returns a function returning the given inner_block if not a function" do
-      inner_block = "Hello"
-      {:ok, pid} = StoreAgent.start(always(inner_block: inner_block))
-
-      returned_inner_block = StoreAgent.get_inner_block(pid)
-
-      assert is_function(returned_inner_block, 1)
-      assert inner_block == returned_inner_block.(%{})
-    end
-
-    test "returns a function if there is no inner_block" do
-      {:ok, pid} = StoreAgent.start(always([]))
-
-      returned_inner_block = StoreAgent.get_inner_block(pid)
-
-      assert is_function(returned_inner_block, 1)
     end
   end
 

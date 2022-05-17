@@ -33,13 +33,6 @@ defmodule LiveIsolatedComponent.StoreAgent do
     end)
   end
 
-  def get_inner_block(pid) do
-    get_data(pid, :inner_block, fn assigns ->
-      ~H"""
-      """
-    end)
-  end
-
   defp get_data(pid, key, default_value) do
     case Agent.get(pid, & &1) do
       %{^key => nil} -> default_value
