@@ -122,9 +122,9 @@ defmodule LiveIsolatedComponent do
 
   It accepts the following options:
     - `:assigns` accepts a map of assigns for the component.
-    - `:content` accepts either the result of `sigil_H` or a function accepting an assigns and returning a hex template.
     - `:handle_event` accepts a handler for the `handle_event` callback in the LiveView.
-    - `:handle_info` acceptas a handler for the `handle_info` callback in the LiveView.
+    - `:handle_info` accepts a handler for the `handle_info` callback in the LiveView.
+    - `:slots` accepts different slot descriptors.
   """
   defmacro live_isolated_component(module, opts \\ %{}) do
     quote do
@@ -135,7 +135,6 @@ defmodule LiveIsolatedComponent do
         StoreAgent.start(fn ->
           %{
             assigns: Keyword.get(opts, :assigns, %{}),
-            inner_block: Keyword.get(opts, :content),
             handle_event: Keyword.get(opts, :handle_event),
             handle_info: Keyword.get(opts, :handle_info),
             slots: Keyword.get(opts, :slots)
