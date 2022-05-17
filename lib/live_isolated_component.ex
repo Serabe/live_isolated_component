@@ -39,9 +39,8 @@ defmodule LiveIsolatedComponent do
           id="some-unique-id"
           module={@module}
           {@assigns}
-          >
-          <%= StoreAgent.get_inner_block(@store_agent).(@assigns) %>
-        </.live_component>
+          {StoreAgent.get_slots(@store_agent, @assigns)}
+          />
       """
     end
 
@@ -138,7 +137,8 @@ defmodule LiveIsolatedComponent do
             assigns: Keyword.get(opts, :assigns, %{}),
             inner_block: Keyword.get(opts, :content),
             handle_event: Keyword.get(opts, :handle_event),
-            handle_info: Keyword.get(opts, :handle_info)
+            handle_info: Keyword.get(opts, :handle_info),
+            slots: Keyword.get(opts, :slots)
           }
         end)
 
