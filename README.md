@@ -7,7 +7,7 @@ The simplest way to test a LiveView stateful component in isolation.
 ```elixir
 def deps do
   [
-    {:live_isolated_component, "~> 0.1.0"}
+    {:live_isolated_component, "~> 0.1.1", only: [:dev, :test]}
   ]
 end
 ```

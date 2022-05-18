@@ -1,7 +1,7 @@
 defmodule LiveIsolatedComponent.MixProject do
   use Mix.Project
 
-  @version "0.1.0"
+  @version "0.1.1"
 
   def project do
     [
@@ -32,7 +32,7 @@ defmodule LiveIsolatedComponent.MixProject do
       maintainers: ["Sergio Arbeo"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/Serabe/live_isolated_component"},
-      files: ~w(lib),
+      files: ~w(lib LICENSE.txt mix.exs README.md),
       description: "Simple library to test LV components live in isolation"
     ]
   end
