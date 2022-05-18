@@ -13,9 +13,11 @@ defmodule TestAppWeb.Live.LabelComponentTest do
     {:ok, view, _html} =
       live_isolated_component(LabelComponent,
         assigns: %{for: "some-id"},
-        content: ~H"""
-        <span class="some-content">Some content</span>
-        """
+        slots: [
+          inner_block: ~H"""
+          <span class="some-content">Some content</span>
+          """
+        ]
       )
 
     assert has_element?(view, "span.some-content", "Some content")
@@ -25,11 +27,13 @@ defmodule TestAppWeb.Live.LabelComponentTest do
     {:ok, view, _html} =
       live_isolated_component(LabelComponent,
         assigns: %{for: "some-id"},
-        content: fn assigns ->
-          ~H"""
-          <span class="some-content">Some content</span>
-          """
-        end
+        slots: [
+          inner_block: fn assigns ->
+            ~H"""
+            <span class="some-content">Some content</span>
+            """
+          end
+        ]
       )
 
     assert has_element?(view, "span.some-content", "Some content")
@@ -39,11 +43,13 @@ defmodule TestAppWeb.Live.LabelComponentTest do
     {:ok, view, _html} =
       live_isolated_component(LabelComponent,
         assigns: %{for: "some-id"},
-        content: fn assigns ->
-          ~H"""
-          <span class="some-content">Some content for <%= @for %></span>
-          """
-        end
+        slots: [
+          inner_block: fn assigns ->
+            ~H"""
+            <span class="some-content">Some content for <%= @for %></span>
+            """
+          end
+        ]
       )
 
     assert has_element?(view, "span.some-content", "Some content for some-id")
@@ -53,11 +59,13 @@ defmodule TestAppWeb.Live.LabelComponentTest do
     {:ok, view, _html} =
       live_isolated_component(LabelComponent,
         assigns: %{for: "some-id"},
-        content: fn assigns ->
-          ~H"""
-          <span class="some-content">Some content for <%= @for %></span>
-          """
-        end
+        slots: [
+          inner_block: fn assigns ->
+            ~H"""
+            <span class="some-content">Some content for <%= @for %></span>
+            """
+          end
+        ]
       )
 
     assert has_element?(view, "span.some-content", "Some content for some-id")
