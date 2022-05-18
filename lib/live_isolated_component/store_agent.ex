@@ -91,9 +91,10 @@ defmodule LiveIsolatedComponent.StoreAgent do
     fn assigns ->
       result = fun.(assigns)
 
-      cond do
-        is_function(result, 2) -> result
-        true -> fn _a, _b -> result end
+      if is_function(result, 2) do
+        result
+      else
+        fn _changed, _arguments -> result end
       end
     end
   end
