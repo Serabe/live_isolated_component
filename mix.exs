@@ -32,7 +32,8 @@ defmodule LiveIsolatedComponent.MixProject do
       maintainers: ["Sergio Arbeo"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/Serabe/live_isolated_component"},
-      files: ~w(lib)
+      files: ~w(lib),
+      description: "Simple library to test LV components live in isolation"
     ]
   end
 
