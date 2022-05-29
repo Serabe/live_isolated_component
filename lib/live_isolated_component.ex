@@ -25,6 +25,7 @@ defmodule LiveIsolatedComponent do
         |> assign(:store_agent, session[@store_agent_key])
         |> then(fn socket ->
           agent = store_agent_pid(socket)
+
           socket
           |> assign(:assigns, StoreAgent.get_assigns(agent))
           |> assign(:component, StoreAgent.get_component(agent))
@@ -33,8 +34,8 @@ defmodule LiveIsolatedComponent do
       {:ok, socket}
     end
 
-    def render(%{component: component, store_agent: agent, assigns: component_assigns}=assigns)
-      when is_function(component) do
+    def render(%{component: component, store_agent: agent, assigns: component_assigns} = assigns)
+        when is_function(component) do
       Phoenix.LiveView.Helpers.component(
         component,
         Map.merge(
