@@ -9,7 +9,6 @@ defmodule LiveIsolatedComponent do
   alias LiveIsolatedComponent.StoreAgent
 
   @assign_updates_event "live_isolated_component_update_assigns_event"
-  @module_key "live_isolated_component_module"
   @store_agent_key "live_isolated_component_store_agent"
 
   defmodule View do
@@ -17,27 +16,42 @@ defmodule LiveIsolatedComponent do
 
     use Phoenix.LiveView
 
+    alias Phoenix.LiveView.Helpers, as: LVHelpers
+
     @assign_updates_event "live_isolated_component_update_assigns_event"
-    @module_key "live_isolated_component_module"
     @store_agent_key "live_isolated_component_store_agent"
 
     def mount(_params, session, socket) do
       socket =
         socket
         |> assign(:store_agent, session[@store_agent_key])
-        |> assign(:module, session[@module_key])
         |> then(fn socket ->
-          assign(socket, :assigns, socket |> store_agent_pid() |> StoreAgent.get_assigns())
+          agent = store_agent_pid(socket)
+
+          socket
+          |> assign(:assigns, StoreAgent.get_assigns(agent))
+          |> assign(:component, StoreAgent.get_component(agent))
         end)
 
       {:ok, socket}
+    end
+
+    def render(%{component: component, store_agent: agent, assigns: component_assigns} = assigns)
+        when is_function(component) do
+      LVHelpers.component(
+        component,
+        Map.merge(
+          component_assigns,
+          StoreAgent.get_slots(agent, component_assigns)
+        )
+      )
     end
 
     def render(assigns) do
       ~H"""
         <.live_component
           id="some-unique-id"
-          module={@module}
+          module={@component}
           {@assigns}
           {StoreAgent.get_slots(@store_agent, @assigns)}
           />
@@ -126,7 +140,7 @@ defmodule LiveIsolatedComponent do
     - `:handle_info` accepts a handler for the `handle_info` callback in the LiveView.
     - `:slots` accepts different slot descriptors.
   """
-  defmacro live_isolated_component(module, opts \\ %{}) do
+  defmacro live_isolated_component(component, opts \\ %{}) do
     quote do
       opts = if is_map(unquote(opts)), do: [assigns: unquote(opts)], else: unquote(opts)
 
@@ -135,6 +149,7 @@ defmodule LiveIsolatedComponent do
         StoreAgent.start(fn ->
           %{
             assigns: Keyword.get(opts, :assigns, %{}),
+            component: unquote(component),
             handle_event: Keyword.get(opts, :handle_event),
             handle_info: Keyword.get(opts, :handle_info),
             slots: Keyword.get(opts, :slots)
@@ -143,7 +158,6 @@ defmodule LiveIsolatedComponent do
 
       live_isolated(build_conn(), View,
         session: %{
-          unquote(@module_key) => unquote(module),
           unquote(@store_agent_key) => store_agent
         }
       )
