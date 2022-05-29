@@ -16,6 +16,8 @@ defmodule LiveIsolatedComponent do
 
     use Phoenix.LiveView
 
+    alias Phoenix.LiveView.Helpers, as: LVHelpers
+
     @assign_updates_event "live_isolated_component_update_assigns_event"
     @store_agent_key "live_isolated_component_store_agent"
 
@@ -36,7 +38,7 @@ defmodule LiveIsolatedComponent do
 
     def render(%{component: component, store_agent: agent, assigns: component_assigns} = assigns)
         when is_function(component) do
-      Phoenix.LiveView.Helpers.component(
+      LVHelpers.component(
         component,
         Map.merge(
           component_assigns,
