@@ -88,25 +88,47 @@ view
 assert %{arguments: {:i_was_clicked, _s}} = Spy.last_event(handle_event_spy)
 ```
 
-Passing a default slot:
+## Slots
+
+The `slots` options can be either a map or keywords. Each key represents one slot. There are several ways to represent a slot:
+
+1. A slot can be just a hex template.
+2. A slot can be a function of arity 2. If so, it will receive as first parameter the changed properties and as the second the assigns. This function depends on LV implementation of slots, so it's subject to change if LV changes it. It needs to return either a template or a list of templates.
+3. A function of arity 1. In this case, it'll receive the assigns passed to the `live_isolated_component` macro. It can either return a template, a list of templates or a function as described in 2. This is an abstraction over the underlying implementation and, if possible, will not change even if LV changes the implementation.
+4. A list of Slots as describes in 1., 2. and 3. combined in any way.
 
 ```elixir
-assigns = %{}
-{:ok, view, _html} = live_isolated_component(LabelComponent,
-    content: ~H"""
-    <div>Some content</div>
-    """
-  )
-```
-
-```elixir
-{:ok, view, _html} = live_isolated_component(LabelComponent,
-    assigns: %{name: "Sergio"},
-    content: fn assigns ->
-      # We get the assigns passed to `live_isolated_component`
+{:ok, view, _html} = live_isolated_component(TableComponent,
+  assigns: %{key: "value"},
+  slots: %{
+    col: [
       ~H"""
-      <div><%= @name %></div>
+      One
+      """,
+      %{
+      inner_block: ~H"""
+      Two
       """
-    end
-  )
+      },
+      fn assigns ->
+        ~H"""
+        <%= @key %>
+        """
+      end,
+      fn _changed, assigns ->
+        ~H"""
+        <%= @es %> <%= @en %>
+        """
+      end,
+      fn view_assigns ->
+        fn _changed, arguments ->
+          assigns = Map.merge(view_assigns, arguments)
+          ~H"""
+          <%= @es %> <%= @key %> <%= @en %>
+          """
+        end
+      end
+    ]
+  }
+)
 ```
