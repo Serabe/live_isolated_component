@@ -17,9 +17,9 @@ defmodule TestAppWeb.Live.TableComponentTest do
           One
           """,
           %{
-          inner_block: ~H"""
-          Two
-          """
+            inner_block: ~H"""
+            Two
+            """
           },
           fn assigns ->
             ~H"""
@@ -34,6 +34,7 @@ defmodule TestAppWeb.Live.TableComponentTest do
           fn view_assigns ->
             fn _changed, arguments ->
               assigns = Map.merge(view_assigns, arguments)
+
               ~H"""
               <%= @es %> <%= @key %> <%= @en %>
               """

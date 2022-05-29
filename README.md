@@ -1,6 +1,7 @@
 # LiveIsolatedComponent
 
-The simplest way to test a LiveView stateful component in isolation.
+The simplest way to test a LiveView both stateful and function component in isolation
+while keeping the interactivity.
 
 ## Installation
 
