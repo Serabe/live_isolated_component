@@ -56,37 +56,53 @@ assert has_element?(view, ".name", "Fran")
 Testing `handle_event`:
 
 ```elixir
-# alias LiveIsolatedComponent.Spy
-handle_event_spy = Spy.handle_event()
-
 {:ok, view, _html} = live_isolated_component(SimpleButton,
-    assigns: %{on_click: :i_was_clicked},
-    handle_event: handle_event_spy.callback
+    assigns: %{on_click: :i_was_clicked}
   )
 
 view
   |> element("button")
   |> render_click()
 
-assert %{arguments: {:i_was_clicked, _p, _s}} = Spy.last_event(handle_event_spy)
+assert_received_handle_event_message view, :i_was_clicked
 ```
 
 Testing `handle_info`:
 
 ```elixir
-# alias LiveIsolatedComponent.Spy
-handle_info_spy = Spy.handle_info()
-
 {:ok, view, _html} = live_isolated_component(ComplexButton,
-    assigns: %{on_click: :i_was_clicked},
-    handle_info: handle_info_spy.callback
+    assigns: %{on_click: :i_was_clicked}
   )
 
 view
   |> element("button")
   |> render_click()
 
-assert %{arguments: {:i_was_clicked, _s}} = Spy.last_event(handle_event_spy)
+assert_received_handle_event_message view, :i_was_clicked
+```
+
+`handle_event` callback:
+
+```elixir
+{:ok, view, _html} = live_isolated_component(SimpleButton,
+    assigns: %{on_click: :i_was_clicked},
+    handle_event: fn :i_was_clicked, _params, socket ->
+      # Do something
+      {:noreply, socket}
+    end
+  )
+```
+
+`handle_info` callback:
+
+```elixir
+{:ok, view, _html} = live_isolated_component(SimpleButton,
+    assigns: %{on_click: :i_was_clicked},
+    handle_info: fn :i_was_clicked, _params, socket ->
+      # Do something
+      {:noreply, socket}
+    end
+  )
 ```
 
 ## Slots
