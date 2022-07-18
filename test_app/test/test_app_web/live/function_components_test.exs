@@ -5,8 +5,6 @@ defmodule TestAppWeb.Live.FunctionComponentTest do
   import Phoenix.LiveViewTest
   import Phoenix.LiveView.Helpers, only: [render_slot: 1, sigil_H: 2]
 
-  alias LiveIsolatedComponent.Spy
-
   def fn_component(assigns) do
     assigns =
       Map.merge(
@@ -42,11 +40,8 @@ defmodule TestAppWeb.Live.FunctionComponentTest do
   test "handle event" do
     assigns = %{}
 
-    handle_event = Spy.handle_event()
-
     {:ok, view, _html} =
       live_isolated_component(&fn_component/1,
-        handle_event: handle_event.callback,
         slots: [
           inner_block: ~H"""
             Hello
@@ -58,7 +53,7 @@ defmodule TestAppWeb.Live.FunctionComponentTest do
     |> element("button")
     |> render_click()
 
-    assert Spy.any_event_received?(handle_event)
+    assert_receive_handle_event_message(view, "event")
   end
 
   test "assigns" do
