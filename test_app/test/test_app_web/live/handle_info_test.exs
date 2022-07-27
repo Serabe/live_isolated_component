@@ -16,11 +16,11 @@ defmodule TestAppWeb.Live.HandleInfoTest do
 
     view |> element("button") |> render_click()
 
-    assert_receive_handle_info_message(view, {:i_was_clicked, 1})
+    assert_handle_info(view, {:i_was_clicked, 1})
 
     view |> element("button") |> render_click()
 
-    assert_receive_handle_info_message(view, {:i_was_clicked, 2})
+    assert_handle_info(view, {:i_was_clicked, 2})
   end
 
   test "can check any event is received" do
@@ -31,7 +31,7 @@ defmodule TestAppWeb.Live.HandleInfoTest do
 
     view |> element("button") |> render_click()
 
-    assert_receive_handle_info_message(view)
+    assert_handle_info(view)
   end
 
   test "default impl for handle_info's callback" do

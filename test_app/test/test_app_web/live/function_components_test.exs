@@ -53,7 +53,7 @@ defmodule TestAppWeb.Live.FunctionComponentTest do
     |> element("button")
     |> render_click()
 
-    assert_receive_handle_event_message(view, "event")
+    assert_handle_event(view, "event")
   end
 
   test "assigns" do

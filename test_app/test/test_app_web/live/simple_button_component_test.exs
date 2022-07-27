@@ -18,7 +18,7 @@ defmodule TestAppWeb.Live.SimpleButtonComponentTest do
     |> element("button")
     |> render_click()
 
-    assert_receive_handle_event_message(view, "i_was_clicked")
+    assert_handle_event(view, "i_was_clicked")
   end
 
   test "executes the default impl for handle_event callback" do
@@ -40,7 +40,7 @@ defmodule TestAppWeb.Live.SimpleButtonComponentTest do
 
     assert has_element?(view, "button", "My blue-ish button")
 
-    assert_receive_handle_event_message(view)
+    assert_handle_event(view)
   end
 
   test "params and socket are received in the message" do
@@ -51,7 +51,7 @@ defmodule TestAppWeb.Live.SimpleButtonComponentTest do
 
     view |> element("button") |> render_click()
 
-    assert_receive_handle_event_message(view, "i_was_clicked")
+    assert_handle_event(view, "i_was_clicked")
   end
 
   test "we get to spy result" do
