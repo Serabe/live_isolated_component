@@ -34,7 +34,11 @@ defmodule LiveIsolatedComponent.StoreAgent do
     end)
   end
 
-  defp get_data(pid, key, default_value) do
+  def send_to_test(pid, message) do
+    send(get_data(pid, :test_pid), message)
+  end
+
+  defp get_data(pid, key, default_value \\ nil) do
     case Agent.get(pid, & &1) do
       %{^key => nil} -> default_value
       %{^key => value} -> value
