@@ -62,6 +62,6 @@ defmodule TestAppWeb.Live.SimpleButtonComponentTest do
 
     view |> element("button") |> render_click()
 
-    assert_return_handle_event_message(view, :noreply)
+    assert_handle_event_return(view, :noreply)
   end
 end

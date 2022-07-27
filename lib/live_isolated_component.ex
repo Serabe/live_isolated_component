@@ -200,7 +200,7 @@ defmodule LiveIsolatedComponent do
   @doc """
   Asserts the return value of a handle_event
   """
-  defmacro assert_return_handle_event_message(view, return_value) do
+  defmacro assert_handle_event_return(view, return_value) do
     quote do
       view_pid = unquote(view).pid
 
