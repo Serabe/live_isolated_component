@@ -204,6 +204,8 @@ defmodule LiveIsolatedComponent do
     quote do
       view_pid = unquote(view).pid
 
+      :sys.get_state(view_pid)
+
       assert_receive {unquote(@handle_event_received_message_name), ^view_pid, _,
                       unquote(return_value)}
     end
@@ -222,12 +224,14 @@ defmodule LiveIsolatedComponent do
   If you just want to check the parameters without checking the event name,
   pass `nil` as the event name.
   """
-  defmacro assert_handle_event(view, event \\ nil, params \\ nil, timeout \\ 100) do
+  defmacro assert_handle_event(view, event \\ nil, params \\ nil, timeout \\ 500) do
     event = if is_nil(event), do: quote(do: _event), else: event
     params = if is_nil(params), do: quote(do: _params), else: params
 
     quote do
       view_pid = unquote(view).pid
+
+      :sys.get_state(view_pid)
 
       assert_receive {unquote(@handle_event_received_message_name), ^view_pid,
                       {unquote(event), unquote(params)}, _},
@@ -242,11 +246,13 @@ defmodule LiveIsolatedComponent do
   With an optional event name, we check that too.
   The third argument is an optional timeout, defaults to 100 milliseconds.
   """
-  defmacro assert_handle_info(view, event \\ nil, timeout \\ 100) do
+  defmacro assert_handle_info(view, event \\ nil, timeout \\ 500) do
     event = if is_nil(event), do: quote(do: _event), else: event
 
     quote do
       view_pid = unquote(view).pid
+
+      :sys.get_state(view_pid)
 
       assert_receive {unquote(@handle_info_received_message_name), ^view_pid, unquote(event)},
                      unquote(timeout)
