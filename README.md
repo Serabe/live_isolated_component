@@ -64,7 +64,7 @@ view
   |> element("button")
   |> render_click()
 
-assert_received_handle_event_message view, :i_was_clicked
+assert_handle_event view, :i_was_clicked
 ```
 
 Testing `handle_info`:
@@ -78,7 +78,7 @@ view
   |> element("button")
   |> render_click()
 
-assert_received_handle_event_message view, :i_was_clicked
+assert_handle_info view, :i_was_clicked
 ```
 
 `handle_event` callback:
