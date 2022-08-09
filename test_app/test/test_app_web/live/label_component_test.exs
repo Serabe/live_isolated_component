@@ -8,16 +8,15 @@ defmodule TestAppWeb.Live.LabelComponentTest do
   import Phoenix.LiveView.Helpers, only: [sigil_H: 2]
 
   test "displays content (as sigil_H)" do
-    assigns = %{}
-
     {:ok, view, _html} =
       live_isolated_component(LabelComponent,
         assigns: %{for: "some-id"},
-        slots: [
-          inner_block: ~H"""
-          <span class="some-content">Some content</span>
-          """
-        ]
+        slots:
+          slot(assigns: assigns) do
+            ~H"""
+            <span class="some-content">Some content</span>
+            """
+          end
       )
 
     assert has_element?(view, "span.some-content", "Some content")
@@ -27,13 +26,12 @@ defmodule TestAppWeb.Live.LabelComponentTest do
     {:ok, view, _html} =
       live_isolated_component(LabelComponent,
         assigns: %{for: "some-id"},
-        slots: [
-          inner_block: fn assigns ->
+        slots:
+          slot(assigns: assigns) do
             ~H"""
             <span class="some-content">Some content</span>
             """
           end
-        ]
       )
 
     assert has_element?(view, "span.some-content", "Some content")
@@ -43,13 +41,12 @@ defmodule TestAppWeb.Live.LabelComponentTest do
     {:ok, view, _html} =
       live_isolated_component(LabelComponent,
         assigns: %{for: "some-id"},
-        slots: [
-          inner_block: fn assigns ->
+        slots:
+          slot(assigns: assigns) do
             ~H"""
             <span class="some-content">Some content for <%= @for %></span>
             """
           end
-        ]
       )
 
     assert has_element?(view, "span.some-content", "Some content for some-id")
@@ -60,11 +57,12 @@ defmodule TestAppWeb.Live.LabelComponentTest do
       live_isolated_component(LabelComponent,
         assigns: %{for: "some-id"},
         slots: [
-          inner_block: fn assigns ->
-            ~H"""
-            <span class="some-content">Some content for <%= @for %></span>
-            """
-          end
+          inner_block:
+            slot(assigns: assigns) do
+              ~H"""
+              <span class="some-content">Some content for <%= @for %></span>
+              """
+            end
         ]
       )
 

@@ -252,4 +252,58 @@ defmodule LiveIsolatedComponent do
                      unquote(timeout)
     end
   end
+
+  @doc """
+  Macro to define slots. Accepts a map or keywords and a block.
+  The block needs to return a template (use a `sigil_H`).
+
+  The arguments can be anything and they will be passed to the slot
+  as attributes. There are two special attributes that are not passed
+  though:
+
+  1. `assigns` is there so you can have an `assigns` in scope
+     so the `sigil_H` compilation does not fail.
+  2. `let` behaves like in components, letting the component
+     pass some value into the slot.
+
+  ## Example
+
+  ```
+  > slot(assigns: assigns, let: {key, value}) do
+      ~H[
+      <div>
+        <h2>Title coming from assigns: <%= @title %></h2>
+        <span>Key coming from let <%= key %></span>
+        <span>Value coming from let<%= value %></span>
+      </div>
+      ]
+    end
+  ```
+  """
+  defmacro slot(args \\ quote(do: %{}), do: block) do
+    {:%{}, metadata, content} =
+      case args do
+        {:%{}, _metadata, _content} = map -> map
+        keywords -> {:%{}, [], keywords}
+      end
+
+    {assigns, without_assigns} = Keyword.pop(content, :assigns, quote(do: assigns))
+    {let, without_assigns_and_let} = Keyword.pop(without_assigns, :let, quote(do: __inner_let))
+
+    slot_attrs = {:%{}, metadata, without_assigns_and_let}
+
+    quote do
+      unquote(slot_attrs)
+      |> Map.new()
+      |> Map.merge(%{
+        __live_isolated_slot__: true,
+        inner_block: fn assigns ->
+          fn _changed, unquote(let) ->
+            unquote(assigns) = assigns
+            unquote(block)
+          end
+        end
+      })
+    end
+  end
 end

@@ -23,30 +23,24 @@ defmodule TestAppWeb.Live.FunctionComponentTest do
   end
 
   test "displays slots" do
-    assigns = %{}
-
     {:ok, view, _html} =
       live_isolated_component(&fn_component/1,
-        slots: [
-          inner_block: ~H"""
-            Hello
-          """
-        ]
+        slots:
+          slot(assigns: assigns) do
+            ~H[Hello]
+          end
       )
 
     assert has_element?(view, "button", "Hello")
   end
 
   test "handle event" do
-    assigns = %{}
-
     {:ok, view, _html} =
       live_isolated_component(&fn_component/1,
-        slots: [
-          inner_block: ~H"""
-            Hello
-          """
-        ]
+        slots:
+          slot(assigns: assigns) do
+            ~H[Hello]
+          end
       )
 
     view
@@ -57,32 +51,26 @@ defmodule TestAppWeb.Live.FunctionComponentTest do
   end
 
   test "assigns" do
-    assigns = %{}
-
     {:ok, view, _html} =
       live_isolated_component(&fn_component/1,
         assigns: %{class: "kallax"},
-        slots: [
-          inner_block: ~H"""
-            Hello
-          """
-        ]
+        slots:
+          slot(assigns: assigns) do
+            ~H[Hello]
+          end
       )
 
     assert has_element?(view, "button.kallax")
   end
 
   test "gets rerendered when assigns change" do
-    assigns = %{}
-
     {:ok, view, _html} =
       live_isolated_component(&fn_component/1,
         assigns: %{class: "kallax"},
-        slots: [
-          inner_block: ~H"""
-            Hello
-          """
-        ]
+        slots:
+          slot(assigns: assigns) do
+            ~H[Hello]
+          end
       )
 
     assert has_element?(view, "button.kallax")
