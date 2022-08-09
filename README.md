@@ -118,9 +118,8 @@ The `slots` options can be:
 
 We define slots by using the `slot` macro. This macro accepts a keyword list and a block.
 The block needs to return a template (you can use `sigil_H`). The keywords will be considered
-attributes of the slot except for the following two:
+attributes of the slot except for the following `let`:
 
-- `assigns` is just there so the `sigil_H` compiler does not complain about a missing `assigns`
 - `let` will bind the argument to the value. You can use destructuring here.
 
 Like in a real slot, the `assigns` the slot have access to is that of the parent LiveView.
@@ -149,19 +148,7 @@ Just a default slot (map version):
 )
 ```
 
-Just a default slot (keyword version):
-
-```elixir
-{:ok, view, html} = live_isolated_component(MyComponent,
-  slots: [
-    inner_block: slot(assigns: assigns) do
-      ~H[Hello from default slot]
-    end
-  ]
-)
-```
-
-Named slot (only one slot defined, map):
+Named slot (only one slot defined):
 
 ```elixir
 {:ok, view, html} = live_isolated_component(MyTableComponent,
@@ -173,19 +160,7 @@ Named slot (only one slot defined, map):
 )
 ```
 
-Named slot (only one slot defined, keyword):
-
-```elixir
-{:ok, view, html} = live_isolated_component(MyTableComponent,
-  slots: [
-    col: slot(assigns: assigns, header: "Column Header") do
-      ~H[Hello from the column slot]
-    end
-  ]
-)
-```
-
-Named slot (multiple slots defined, map):
+Named slot (multiple slots defined):
 
 ```elixir
 {:ok, view, html} = live_isolated_component(MyTableComponent,
@@ -199,39 +174,5 @@ Named slot (multiple slots defined, map):
       end
     ]
   }
-)
-```
-
-Named slot (multiple slots defined, keyword, passing an array):
-
-```elixir
-{:ok, view, html} = live_isolated_component(MyTableComponent,
-  slots: [
-    col: [
-      slot(assigns: assigns, let: item, header: "Language") do
-        ~H[<%= item.language %>]
-      end,
-      slot(assigns: assigns, let: %{greeting: greeting}, header: "Greeting") do
-        ~H[<%= greeting %>]
-      end
-    ]
-  ]
-)
-```
-
-Named slot (multiple slots defined, keyword, passing slot several times):
-
-```elixir
-{:ok, view, html} = live_isolated_component(MyTableComponent,
-  slots: [
-    col:
-      slot(assigns: assigns, let: item, header: "Language") do
-        ~H[<%= item.language %>]
-      end,
-    col:
-      slot(assigns: assigns, let: %{greeting: greeting}, header: "Greeting") do
-        ~H[<%= greeting %>]
-      end
-  ]
 )
 ```

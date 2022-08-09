@@ -26,7 +26,7 @@ defmodule TestAppWeb.Live.FunctionComponentTest do
     {:ok, view, _html} =
       live_isolated_component(&fn_component/1,
         slots:
-          slot(assigns: assigns) do
+          slot do
             ~H[Hello]
           end
       )
@@ -38,7 +38,7 @@ defmodule TestAppWeb.Live.FunctionComponentTest do
     {:ok, view, _html} =
       live_isolated_component(&fn_component/1,
         slots:
-          slot(assigns: assigns) do
+          slot do
             ~H[Hello]
           end
       )
@@ -55,7 +55,7 @@ defmodule TestAppWeb.Live.FunctionComponentTest do
       live_isolated_component(&fn_component/1,
         assigns: %{class: "kallax"},
         slots:
-          slot(assigns: assigns) do
+          slot do
             ~H[Hello]
           end
       )
@@ -68,7 +68,7 @@ defmodule TestAppWeb.Live.FunctionComponentTest do
       live_isolated_component(&fn_component/1,
         assigns: %{class: "kallax"},
         slots:
-          slot(assigns: assigns) do
+          slot do
             ~H[Hello]
           end
       )

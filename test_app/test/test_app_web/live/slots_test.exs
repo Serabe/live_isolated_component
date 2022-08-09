@@ -14,7 +14,7 @@ defmodule TestAppWeb.Live.TableComponentTest do
     describe "default (inner_block) slot #{@label}" do
       test "displays slot" do
         inner_block =
-          slot(assigns: assigns) do
+          slot do
             ~H[Hola]
           end
 
@@ -37,7 +37,7 @@ defmodule TestAppWeb.Live.TableComponentTest do
             },
             slots:
               process_slot(
-                slot(%{assigns: assigns, let: arg}) do
+                slot(%{let: arg}) do
                   ~H[<%= arg %>]
                 end,
                 @type_of_slot
@@ -53,7 +53,7 @@ defmodule TestAppWeb.Live.TableComponentTest do
             assigns: %{value: {"hola", "adios"}},
             slots:
               process_slot(
-                slot(assigns: assigns, let: {a, b}) do
+                slot(let: {a, b}) do
                   ~H"""
                   <span data-test-hola><%= a %></span>
                   <span data-test-adios><%= b %></span>
@@ -75,7 +75,7 @@ defmodule TestAppWeb.Live.TableComponentTest do
         live_isolated_component(&my_select/1,
           slots: %{
             option:
-              slot(assigns: assigns, value: "5", selected: true) do
+              slot(value: "5", selected: true) do
                 ~H"""
                 Fifth
                 """
@@ -91,13 +91,13 @@ defmodule TestAppWeb.Live.TableComponentTest do
         live_isolated_component(&my_select/1,
           slots: %{
             option: [
-              slot(assigns: assigns, value: "5", selected: true) do
+              slot(value: "5", selected: true) do
                 ~H[Fifth]
               end,
-              slot(assigns: assigns, value: "10", selected: false) do
+              slot(value: "10", selected: false) do
                 ~H[Tenth]
               end,
-              slot(assigns: assigns, value: "15", selected: false) do
+              slot(value: "15", selected: false) do
                 ~H[Fifteenth]
               end
             ]
@@ -114,13 +114,13 @@ defmodule TestAppWeb.Live.TableComponentTest do
         live_isolated_component(&my_select/1,
           slots: %{
             option: [
-              slot(assigns: assigns, value: "5", selected: true) do
+              slot(value: "5", selected: true) do
                 ~H[Fifth]
               end,
-              slot(assigns: assigns, value: "10", selected: false) do
+              slot(value: "10", selected: false) do
                 ~H[Tenth]
               end,
-              slot(assigns: assigns, value: "15", selected: false) do
+              slot(value: "15", selected: false) do
                 ~H[Fifteenth]
               end
             ]
@@ -153,12 +153,12 @@ defmodule TestAppWeb.Live.TableComponentTest do
             slots:
               process_slot(
                 [
-                  slot(assigns: assigns, let: i, header: "Language") do
+                  slot(let: i, header: "Language") do
                     ~H"""
                     <%= i.lang %>
                     """
                   end,
-                  slot(assigns: assigns, let: i, header: "Greeting") do
+                  slot(let: i, header: "Greeting") do
                     ~H"""
                     <%= i.greeting %>
                     """

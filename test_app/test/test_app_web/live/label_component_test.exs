@@ -12,7 +12,7 @@ defmodule TestAppWeb.Live.LabelComponentTest do
       live_isolated_component(LabelComponent,
         assigns: %{for: "some-id"},
         slots:
-          slot(assigns: assigns) do
+          slot do
             ~H"""
             <span class="some-content">Some content</span>
             """
@@ -27,7 +27,7 @@ defmodule TestAppWeb.Live.LabelComponentTest do
       live_isolated_component(LabelComponent,
         assigns: %{for: "some-id"},
         slots:
-          slot(assigns: assigns) do
+          slot do
             ~H"""
             <span class="some-content">Some content</span>
             """
@@ -42,7 +42,7 @@ defmodule TestAppWeb.Live.LabelComponentTest do
       live_isolated_component(LabelComponent,
         assigns: %{for: "some-id"},
         slots:
-          slot(assigns: assigns) do
+          slot do
             ~H"""
             <span class="some-content">Some content for <%= @for %></span>
             """
@@ -58,7 +58,7 @@ defmodule TestAppWeb.Live.LabelComponentTest do
         assigns: %{for: "some-id"},
         slots: [
           inner_block:
-            slot(assigns: assigns) do
+            slot do
               ~H"""
               <span class="some-content">Some content for <%= @for %></span>
               """

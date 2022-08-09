@@ -11,13 +11,13 @@ defmodule TestAppWeb.Live.ArticleComponentTest do
     {:ok, view, _html} =
       render_article_with_slots(
         header:
-          slot(assigns: assigns) do
+          slot do
             ~H"""
             Some header
             """
           end,
         inner_block:
-          slot(assigns: assigns) do
+          slot do
             ~H"""
             Some content
             """
@@ -32,13 +32,13 @@ defmodule TestAppWeb.Live.ArticleComponentTest do
     {:ok, view, _html} =
       render_article_with_slots(
         header:
-          slot(assigns: assigns) do
+          slot do
             ~H"""
             Author: <%= @post.author %>
             """
           end,
         inner_block:
-          slot(assigns: assigns) do
+          slot do
             ~H"""
             Tags: <%= @post.tags %>
             """
@@ -53,13 +53,13 @@ defmodule TestAppWeb.Live.ArticleComponentTest do
     {:ok, view, _html} =
       render_article_with_slots(
         header:
-          slot(assigns: assigns) do
+          slot do
             ~H"""
             Some header
             """
           end,
         inner_block:
-          slot(assigns: assigns) do
+          slot do
             ~H"""
             Some content
             """
@@ -74,13 +74,13 @@ defmodule TestAppWeb.Live.ArticleComponentTest do
     {:ok, view, _html} =
       render_article_with_slots(
         header:
-          slot(assigns: assigns, es: "Hola", en: "Hello") do
+          slot(es: "Hola", en: "Hello") do
             ~H"""
             Some header
             """
           end,
         inner_block:
-          slot(assigns: assigns) do
+          slot do
             ~H"""
             Some content
             """
