@@ -173,7 +173,7 @@ defmodule LiveIsolatedComponent do
 
   ## More about slots
 
-  For defining slots, you need to use the `slot/1` macro. If you just pass a slot
+  For defining slots, you need to use the `slot/2` macro. If you just pass a slot
   to `:slots`, it will be taken as a default sot (`@inner_block` inside the component).
 
   You can also pass a map or keywords to `:slots`. In this case, the key is considered
