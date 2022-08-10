@@ -170,6 +170,22 @@ defmodule LiveIsolatedComponent do
     - `:handle_event` accepts a handler for the `handle_event` callback in the LiveView.
     - `:handle_info` accepts a handler for the `handle_info` callback in the LiveView.
     - `:slots` accepts different slot descriptors.
+
+  ## More about slots
+
+  For defining slots, you need to use the `slot/1` macro. If you just pass a slot
+  to `:slots`, it will be taken as a default sot (`@inner_block` inside the component).
+
+  You can also pass a map or keywords to `:slots`. In this case, the key is considered
+  to be the slot name and the value, the different slots. Remember that the default slot's
+  name is `inner_block`.
+
+  For passing multiple slots for the same name, you have two options:any()
+
+  1. You can give an array of slots as the value in the map or the keywords.
+  2. You can pass the same name multiple times with different slots. This option
+     is only available if you are using keywords, as this data structure preserves
+     all values.
   """
   defmacro live_isolated_component(component, opts \\ %{}) do
     quote do
@@ -256,6 +272,88 @@ defmodule LiveIsolatedComponent do
 
       assert_receive {unquote(@handle_info_received_message_name), ^view_pid, unquote(event)},
                      unquote(timeout)
+    end
+  end
+
+  @doc """
+  Macro to define slots. Accepts a map or keywords and a block.
+  The block needs to return a template (use a `sigil_H`).
+
+  The arguments can be anything and they will be passed to the slot
+  as attributes. There is only one special attribute that will not
+  be passed though:
+
+  1. `let` behaves like in components, letting the component
+     pass some value into the slot.
+
+  ## Example
+
+  ```
+  > slot(let: {key, value}) do
+      ~H[
+      <div>
+        <h2>Title coming from assigns: <%= @title %></h2>
+        <span>Key coming from let <%= key %></span>
+        <span>Value coming from let<%= value %></span>
+      </div>
+      ]
+    end
+  ```
+
+  ## Conversion
+
+  In case you are wondering how to convert a slot in HEEX
+  to the slot macro, let's do a simple conversion from a
+  named slot with attributes:any()
+
+  ```heex
+  <:slot_name attr_1={5} attr_2="hola" let={value}>
+    <span>Received value from parent component is <%= value %></span>
+  </:slot_name>
+  ```
+
+  For converting this, we notice three different parts:
+
+  1. The slot name. In this case, `:slot_name`.
+  2. The slot attributes. In this case, `attr_1={5} attr_2="hola" let={value}`.
+  3. The slot content (or inner_block). In this case, the `span`.
+
+  Thus, we just need to pass to the `slots` options the following value (just
+  showing the keyword options to `live_isolated_component`):
+
+  ```elixir
+  [
+    slots: [
+      slot_name: slot(attr_1: 5, attr_2: "hola", let: value) do
+        ~H[<span>Received value from parent component is <%= value %></span>]
+      end
+    ]
+  ]
+  ```
+  """
+  defmacro slot(args \\ quote(do: %{}), do: block) do
+    {:%{}, metadata, content} =
+      case args do
+        {:%{}, _metadata, _content} = map -> map
+        keywords -> {:%{}, [], keywords}
+      end
+
+    {_assigns, without_assigns} = Keyword.pop(content, :assigns, quote(do: assigns))
+    {let, without_assigns_and_let} = Keyword.pop(without_assigns, :let, quote(do: __inner_let))
+
+    slot_attrs = {:%{}, metadata, without_assigns_and_let}
+
+    quote do
+      unquote(slot_attrs)
+      |> Map.new()
+      |> Map.merge(%{
+        __live_isolated_slot__: true,
+        inner_block: fn var!(assigns) ->
+          fn _changed, unquote(let) ->
+            unquote(block)
+          end
+        end
+      })
     end
   end
 end

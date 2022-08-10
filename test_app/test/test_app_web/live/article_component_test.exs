@@ -8,18 +8,20 @@ defmodule TestAppWeb.Live.ArticleComponentTest do
   import Phoenix.LiveView.Helpers, only: [sigil_H: 2]
 
   test "displays static content (as sigil_H) both directly or as part of a map" do
-    assigns = %{}
-
     {:ok, view, _html} =
       render_article_with_slots(
-        header: %{
-          inner_block: ~H"""
-          Some header
-          """
-        },
-        inner_block: ~H"""
-        Some content
-        """
+        header:
+          slot do
+            ~H"""
+            Some header
+            """
+          end,
+        inner_block:
+          slot do
+            ~H"""
+            Some content
+            """
+          end
       )
 
     assert has_element?(view, "header .content", "Some header")
@@ -29,18 +31,18 @@ defmodule TestAppWeb.Live.ArticleComponentTest do
   test "if a function of arity 1, receives assigns" do
     {:ok, view, _html} =
       render_article_with_slots(
-        header: %{
-          inner_block: fn assigns ->
+        header:
+          slot do
             ~H"""
             Author: <%= @post.author %>
             """
+          end,
+        inner_block:
+          slot do
+            ~H"""
+            Tags: <%= @post.tags %>
+            """
           end
-        },
-        inner_block: fn assigns ->
-          ~H"""
-          Tags: <%= @post.tags %>
-          """
-        end
       )
 
     assert has_element?(view, "header .content", "Author: X")
@@ -48,22 +50,20 @@ defmodule TestAppWeb.Live.ArticleComponentTest do
   end
 
   test "if a function of arity 2, it is just passed to LV" do
-    assigns = %{}
-
     {:ok, view, _html} =
       render_article_with_slots(
-        header: %{
-          inner_block: fn _a, _b ->
+        header:
+          slot do
             ~H"""
             Some header
             """
+          end,
+        inner_block:
+          slot do
+            ~H"""
+            Some content
+            """
           end
-        },
-        inner_block: fn _a, _b ->
-          ~H"""
-          Some content
-          """
-        end
       )
 
     assert has_element?(view, "header .content", "Some header")
@@ -71,20 +71,20 @@ defmodule TestAppWeb.Live.ArticleComponentTest do
   end
 
   test "attributes can be passed to the slot" do
-    assigns = %{}
-
     {:ok, view, _html} =
       render_article_with_slots(
-        header: %{
-          es: "Hola",
-          en: "Hello",
-          inner_block: ~H"""
-          Some header
-          """
-        },
-        inner_block: ~H"""
-        Some content
-        """
+        header:
+          slot(es: "Hola", en: "Hello") do
+            ~H"""
+            Some header
+            """
+          end,
+        inner_block:
+          slot do
+            ~H"""
+            Some content
+            """
+          end
       )
 
     assert has_element?(view, "header .attr", "en: Hello")
