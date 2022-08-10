@@ -1,6 +1,6 @@
 # LiveIsolatedComponent
 
-![Elixir CI](https://github.com/Serabe/live_isolated_component/actions/workflows/elixir-ci/badge.svg)
+![Elixir CI](https://github.com/Serabe/live_isolated_component/actions/workflows/elixir-ci.yml/badge.svg)
 
 The simplest way to test a LiveView both stateful and function component in isolation
 while keeping the interactivity.
