@@ -10,14 +10,12 @@ while keeping the interactivity.
 ```elixir
 def deps do
   [
-    {:live_isolated_component, "~> 0.1.1", only: [:dev, :test]}
+    {:live_isolated_component, "~> 0.4.0", only: [:dev, :test]}
   ]
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/live_isolated_component>.
+Documentation can be found at [hexdocs](https://hexdocs.pm/live_isolated_component).
 
 ## Basic usage
 
