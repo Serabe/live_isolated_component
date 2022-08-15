@@ -10,7 +10,7 @@ while keeping the interactivity.
 ```elixir
 def deps do
   [
-    {:live_isolated_component, "~> 0.4.0", only: [:dev, :test]}
+    {:live_isolated_component, "~> 0.5.0", only: [:dev, :test]}
   ]
 end
 ```
