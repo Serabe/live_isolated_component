@@ -19,7 +19,7 @@ Documentation can be found at [hexdocs](https://hexdocs.pm/live_isolated_compone
 
 ## Basic usage
 
-Importing `LiveIsolatedComponent` will import one function, `live_assign`, and one macro, `live_isolated_component`. You can use `live_isolated_component` like you would use `live_isolated`, just pass the component you want to test as the first argument and use the options as you see fit. If you want to change the passed assigns from the test, use `live_assign` with the view instead of the socket.
+Importing `LiveIsolatedComponent` will import one function, `live_assign`, and a few macros. You can use `live_isolated_component` like you would use `live_isolated`, just pass the component you want to test as the first argument and use the options as you see fit. If you want to change the passed assigns from the test, use `live_assign` with the view instead of the socket.
 
 ## Example
 

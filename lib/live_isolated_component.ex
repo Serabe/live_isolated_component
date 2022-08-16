@@ -235,7 +235,7 @@ defmodule LiveIsolatedComponent do
   - With no parameters, just that a handle_event message has been received.
   - With one parameter, just the event name is checked.
   - With two parameters, both event name and the parameters are checked.
-  - The optional last argument is the timeout, defaults to 100 milliseconds
+  - The optional last argument is the timeout, defaults to 500 milliseconds
 
   If you just want to check the parameters without checking the event name,
   pass `nil` as the event name.
@@ -256,11 +256,39 @@ defmodule LiveIsolatedComponent do
   end
 
   @doc """
+  Refutes that a given handle event has been received.
+
+  Depending on the number of parameters, different parts are checked:
+
+  - With no parameters, just that a handle_event message has not been received.
+  - With one parameter, just the event name is checked.
+  - With two parameters, both event name and the parameters are checked.
+  - The optional last argument is the timeout, defaults to 500 milliseconds
+
+  If you just want to check the parameters without checking the event name,
+  pass `nil` as the event name.
+  """
+  defmacro refute_handle_event(view, event \\ nil, params \\ nil, timeout \\ 500) do
+    event = if is_nil(event), do: quote(do: _event), else: event
+    params = if is_nil(params), do: quote(do: _params), else: params
+
+    quote do
+      view_pid = unquote(view).pid
+
+      :sys.get_state(view_pid)
+
+      refute_receive {unquote(@handle_event_received_message_name), ^view_pid,
+                      {unquote(event), unquote(params)}, _},
+                     unquote(timeout)
+    end
+  end
+
+  @doc """
   Asserts that a given handle_info event has been received.
 
   If only the view is passed, only that a handle_info is received is checked.
   With an optional event name, we check that too.
-  The third argument is an optional timeout, defaults to 100 milliseconds.
+  The third argument is an optional timeout, defaults to 500 milliseconds.
   """
   defmacro assert_handle_info(view, event \\ nil, timeout \\ 500) do
     event = if is_nil(event), do: quote(do: _event), else: event
@@ -271,6 +299,26 @@ defmodule LiveIsolatedComponent do
       :sys.get_state(view_pid)
 
       assert_receive {unquote(@handle_info_received_message_name), ^view_pid, unquote(event)},
+                     unquote(timeout)
+    end
+  end
+
+  @doc """
+  Asserts that a given handle_info event has not been received.
+
+  If only the view is passed, only that a handle_info is not received is checked.
+  With an optional event name, we check that too.
+  The third argument is an optional timeout, defaults to 500 milliseconds.
+  """
+  defmacro refute_handle_info(view, event \\ nil, timeout \\ 500) do
+    event = if is_nil(event), do: quote(do: _event), else: event
+
+    quote do
+      view_pid = unquote(view).pid
+
+      :sys.get_state(view_pid)
+
+      refute_receive {unquote(@handle_info_received_message_name), ^view_pid, unquote(event)},
                      unquote(timeout)
     end
   end

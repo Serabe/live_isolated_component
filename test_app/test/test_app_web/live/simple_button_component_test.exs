@@ -1,14 +1,14 @@
 defmodule TestAppWeb.Live.SimpleButtonComponentTest do
   use TestAppWeb.ConnCase, async: true
 
+  alias Phoenix.LiveView, as: LV
   alias TestAppWeb.Live.SimpleButtonComponent
 
-  alias Phoenix.LiveView, as: LV
-
   import LiveIsolatedComponent
+  import Phoenix.LiveView.Helpers, only: [sigil_H: 2]
   import Phoenix.LiveViewTest
 
-  test "sends a @on_click event" do
+  test "checks a specific event was sent" do
     {:ok, view, _html} =
       live_isolated_component(SimpleButtonComponent,
         assigns: %{on_click: :i_was_clicked}
@@ -63,5 +63,72 @@ defmodule TestAppWeb.Live.SimpleButtonComponentTest do
     view |> element("button") |> render_click()
 
     assert_handle_event_return(view, :noreply)
+  end
+
+  test "check that an event was not sent" do
+    {:ok, view, _html} =
+      live_isolated_component(&button/1,
+        assigns: %{
+          on_click: "event_name",
+          value: 5
+        }
+      )
+
+    view |> element("button") |> render_click()
+
+    refute_handle_event(view, "some_other_event")
+    assert_handle_event(view, "event_name")
+  end
+
+  test "check that an event was not sent with a specific param" do
+    {:ok, view, _html} =
+      live_isolated_component(&button/1,
+        assigns: %{
+          on_click: "event_name",
+          value: 5
+        }
+      )
+
+    view |> element("button") |> render_click()
+
+    refute_handle_event(view, "event_name", %{"value" => "1"})
+    assert_handle_event(view, "event_name", %{"value" => "5"})
+  end
+
+  test "check that an event was sent with a specific param" do
+    {:ok, view, _html} =
+      live_isolated_component(&button/1,
+        assigns: %{
+          on_click: "event_name",
+          value: 5
+        }
+      )
+
+    view |> element("button") |> render_click()
+
+    assert_handle_event(view, "event_name", %{"value" => "5"})
+  end
+
+  test "check that an event was not sent twice" do
+    {:ok, view, _html} =
+      live_isolated_component(&button/1,
+        assigns: %{
+          on_click: "event_name",
+          value: 5
+        }
+      )
+
+    view |> element("button") |> render_click()
+
+    assert_handle_event(view, "event_name", %{"value" => "5"})
+    refute_handle_event(view, "event_name", %{"value" => "5"})
+  end
+
+  defp button(assigns) do
+    ~H"""
+    <button phx-click={@on_click} phx-value-value={@value}>
+      Click me
+    </button>
+    """
   end
 end
