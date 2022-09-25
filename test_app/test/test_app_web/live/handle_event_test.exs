@@ -124,6 +124,34 @@ defmodule TestAppWeb.Live.SimpleButtonComponentTest do
     refute_handle_event(view, "event_name", %{"value" => "5"})
   end
 
+  test "assert can match part of the event" do
+    {:ok, view, _html} =
+      live_isolated_component(&button/1,
+        assigns: %{
+          on_click: "event_name",
+          value: 5
+        }
+      )
+
+    view |> element("button") |> render_click()
+
+    assert_handle_event(view, _, %{"value" => "5"})
+  end
+
+  test "refute can match part of the event" do
+    {:ok, view, _html} =
+      live_isolated_component(&button/1,
+        assigns: %{
+          on_click: "event_name",
+          value: 5
+        }
+      )
+
+    view |> element("button") |> render_click()
+
+    refute_handle_event(view, _, %{"value" => "6"})
+  end
+
   defp button(assigns) do
     ~H"""
     <button phx-click={@on_click} phx-value-value={@value}>

@@ -23,6 +23,17 @@ defmodule TestAppWeb.Live.HandleInfoTest do
     assert_handle_info(view, {:i_was_clicked, 2})
   end
 
+  test "assert can check partial event name" do
+    {:ok, view, _html} =
+      live_isolated_component(ComplexButtonComponent,
+        assigns: %{on_click: :i_was_clicked}
+      )
+
+    view |> element("button") |> render_click()
+
+    assert_handle_info(view, {:i_was_clicked, _})
+  end
+
   test "can check any event is received" do
     {:ok, view, _html} =
       live_isolated_component(ComplexButtonComponent,
