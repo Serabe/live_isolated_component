@@ -1,11 +1,11 @@
 defmodule TestAppWeb.Live.SimpleButtonComponentTest do
   use TestAppWeb.ConnCase, async: true
 
-  alias Phoenix.LiveView, as: LV
+  alias Phoenix.Component
   alias TestAppWeb.Live.SimpleButtonComponent
 
   import LiveIsolatedComponent
-  import Phoenix.LiveView.Helpers, only: [sigil_H: 2]
+  import Phoenix.Component, only: [sigil_H: 2]
   import Phoenix.LiveViewTest
 
   test "checks a specific event was sent" do
@@ -23,7 +23,7 @@ defmodule TestAppWeb.Live.SimpleButtonComponentTest do
 
   test "executes the default impl for handle_event callback" do
     handle_event = fn _event, _params, socket ->
-      {:noreply, LV.assign(socket, :description, "blue-ish")}
+      {:noreply, Component.assign(socket, :description, "blue-ish")}
     end
 
     {:ok, view, _html} =

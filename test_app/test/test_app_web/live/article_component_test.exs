@@ -5,7 +5,7 @@ defmodule TestAppWeb.Live.ArticleComponentTest do
 
   import LiveIsolatedComponent
   import Phoenix.LiveViewTest
-  import Phoenix.LiveView.Helpers, only: [sigil_H: 2]
+  import Phoenix.Component, only: [sigil_H: 2]
 
   test "displays static content (as sigil_H) both directly or as part of a map" do
     {:ok, view, _html} =

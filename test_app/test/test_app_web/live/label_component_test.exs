@@ -5,7 +5,7 @@ defmodule TestAppWeb.Live.LabelComponentTest do
 
   import LiveIsolatedComponent
   import Phoenix.LiveViewTest
-  import Phoenix.LiveView.Helpers, only: [sigil_H: 2]
+  import Phoenix.Component, only: [sigil_H: 2]
 
   test "displays content (as sigil_H)" do
     {:ok, view, _html} =

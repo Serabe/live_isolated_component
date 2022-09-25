@@ -5,7 +5,7 @@ defmodule TestAppWeb.Live.TableComponentTest do
 
   import LiveIsolatedComponent
   import Phoenix.LiveViewTest
-  import Phoenix.LiveView.Helpers, only: [render_slot: 1, render_slot: 2, sigil_H: 2]
+  import Phoenix.Component, only: [render_slot: 1, render_slot: 2, sigil_H: 2]
 
   for {label, type_of_slot} <- [{"as default slot", :default}, {"as named slot", :named}] do
     @label label
