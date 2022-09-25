@@ -5,11 +5,11 @@ inputs:
   elixir-version:
     required: true
     description: "Elixir version to install"
-    default: "1.13"
+    default: "1.14"
   otp-version:
     required: true
     description: "Erlang/OTP version to install"
-    default: "24.2"
+    default: "25.0"
 
 runs:
   using: "composite"
