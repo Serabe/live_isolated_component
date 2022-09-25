@@ -3,7 +3,7 @@ defmodule TestAppWeb.Live.FunctionComponentTest do
 
   import LiveIsolatedComponent
   import Phoenix.LiveViewTest
-  import Phoenix.LiveView.Helpers, only: [render_slot: 1, sigil_H: 2]
+  import Phoenix.Component, only: [render_slot: 1, sigil_H: 2]
 
   def fn_component(assigns) do
     assigns =

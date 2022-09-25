@@ -1,9 +1,8 @@
 defmodule TestAppWeb.Live.HandleInfoTest do
   use TestAppWeb.ConnCase, async: true
 
+  alias Phoenix.Component
   alias TestAppWeb.Live.ComplexButtonComponent
-
-  alias Phoenix.LiveView, as: LV
 
   import LiveIsolatedComponent
   import Phoenix.LiveViewTest
@@ -50,7 +49,7 @@ defmodule TestAppWeb.Live.HandleInfoTest do
       live_isolated_component(ComplexButtonComponent,
         assigns: %{on_click: :i_was_clicked},
         handle_info: fn {:i_was_clicked, count}, socket ->
-          {:noreply, LV.assign(socket, :description, "red-ish #{count}")}
+          {:noreply, Component.assign(socket, :description, "red-ish #{count}")}
         end
       )
 
