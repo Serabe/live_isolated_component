@@ -13,8 +13,8 @@ jobs:
 
     strategy:
       matrix:
-        elixir: [1.13.0]
-        otp: [24.2]
+        elixir: [1.13.0, 1.14.0]
+        otp: [24.2, 25.0]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Elixir
