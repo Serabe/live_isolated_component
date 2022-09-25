@@ -7,9 +7,14 @@ while keeping the interactivity.
 
 ## Installation
 
+> NOTE: If you are using LiveView 0.18, please use latest version. If you are still in 0.17 use 0.5.0
+
 ```elixir
 def deps do
   [
+    # If you are in LV 0.18
+    {:live_isolated_component, "~> 0.6.0", only: [:dev, :test]}
+    # If you are in LV 0.17
     {:live_isolated_component, "~> 0.5.0", only: [:dev, :test]}
   ]
 end
