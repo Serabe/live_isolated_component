@@ -7,6 +7,7 @@ defmodule LiveIsolatedComponent do
   import Phoenix.LiveViewTest, only: [live_isolated: 3, render: 1]
 
   alias LiveIsolatedComponent.StoreAgent
+  alias Phoenix.LiveView.HTMLEngine
 
   @assign_updates_event "live_isolated_component_update_assigns_event"
   @store_agent_key "live_isolated_component_store_agent"
@@ -42,19 +43,16 @@ defmodule LiveIsolatedComponent do
       {:ok, socket}
     end
 
-    def render(%{component: component} = assigns)
+    def render(%{component: component, store_agent: agent, assigns: component_assigns} = _assigns)
         when is_function(component) do
-      assigns =
-        assigns
-        |> Component.assign(
-          :component_assigns,
-          Map.merge(assigns.assigns, StoreAgent.get_slots(assigns.store_agent, assigns.assigns))
-        )
-        |> Component.assign(:component, assigns.component)
-
-      ~H"""
-      <.fun_comp __fun__={@component} {@component_assigns} />
-      """
+      HTMLEngine.component(
+        component,
+        Map.merge(
+          component_assigns,
+          StoreAgent.get_slots(agent, component_assigns)
+        ),
+        {__ENV__.module, __ENV__.function, __ENV__.file, __ENV__.line}
+      )
     end
 
     def render(assigns) do
@@ -66,10 +64,6 @@ defmodule LiveIsolatedComponent do
           {StoreAgent.get_slots(@store_agent, @assigns)}
           />
       """
-    end
-
-    def fun_comp(assigns) do
-      assigns.__fun__.(assigns)
     end
 
     def handle_event(event, params, socket) do
