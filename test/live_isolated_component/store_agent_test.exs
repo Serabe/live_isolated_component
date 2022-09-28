@@ -8,13 +8,13 @@ defmodule LiveIsolatedComponent.StoreAgentTest do
       assigns = %{a: "hola"}
       {:ok, pid} = StoreAgent.start(always(assigns: assigns))
 
-      assert pid |> StoreAgent.get_assigns() |> Map.equal?(assigns)
+      assert %{a: "hola"} = StoreAgent.get_assigns(pid)
     end
 
     test "normalizes assigns (enumerable)" do
       {:ok, pid} = StoreAgent.start(always(assigns: [a: "hola", b: "adios"]))
 
-      assert pid |> StoreAgent.get_assigns() |> Map.equal?(%{a: "hola", b: "adios"})
+      assert %{a: "hola", b: "adios"} = StoreAgent.get_assigns(pid)
     end
   end
 
@@ -23,13 +23,27 @@ defmodule LiveIsolatedComponent.StoreAgentTest do
       assigns = %{a: "hola"}
       {:ok, pid} = StoreAgent.start(always(assigns: assigns))
 
-      assert pid |> StoreAgent.get_assigns() |> Map.equal?(assigns)
+      assert %{a: "hola"} = StoreAgent.get_assigns(pid)
+    end
+
+    test "adds id if not present" do
+      assigns = %{a: "hola"}
+      {:ok, pid} = StoreAgent.start(always(assigns: assigns))
+
+      assert %{id: "some-unique-id"} = StoreAgent.get_assigns(pid)
+    end
+
+    test "honors id if present" do
+      assigns = %{id: "hola"}
+      {:ok, pid} = StoreAgent.start(always(assigns: assigns))
+
+      assert %{id: "hola"} = StoreAgent.get_assigns(pid)
     end
 
     test "returns empty map if assigns is not passed" do
       {:ok, pid} = StoreAgent.start(always(%{}))
 
-      assert pid |> StoreAgent.get_assigns() |> Map.equal?(%{})
+      assert %{} = StoreAgent.get_assigns(pid)
     end
   end
 
