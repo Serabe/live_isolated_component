@@ -3,7 +3,7 @@ defmodule TestAppWeb.Live.GreetingsComponent do
 
   def render(assigns) do
     ~H"""
-      <div class="a-class">
+      <div class="a-class" id={@id}>
         Hello, <%= @name %>
       </div>
     """
