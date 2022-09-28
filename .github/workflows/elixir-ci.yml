@@ -2,9 +2,9 @@ name: Elixir CI
 
 on:
   push:
-    branches: [main, staging]
+    branches: [main, staging, lv-0.17]
   pull_request:
-    branches: [main, staging]
+    branches: [main, staging, lv-0.17]
 
 jobs:
   test:
