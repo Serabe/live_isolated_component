@@ -48,6 +48,36 @@ defmodule TestAppWeb.Live.GreetingsComponentTest do
     assert_text(view, "Hello, Fran")
   end
 
+  test "id by default is some-uniqe-id" do
+    {:ok, view, _html} = live_isolated_component(GreetingsComponent, assigns: %{name: "Sergio"})
+
+    assert has_element?(view, "#some-unique-id")
+  end
+
+  test "id can be overriden" do
+    id = "some-strange-id"
+
+    {:ok, view, _html} =
+      live_isolated_component(GreetingsComponent, assigns: %{name: "Sergio", id: id})
+
+    assert has_element?(view, "##{id}")
+  end
+
+  test "live_assign keeps old values" do
+    id = "some-strange-id"
+
+    {:ok, view, _html} =
+      live_isolated_component(GreetingsComponent, assigns: %{name: "Sergio", id: id})
+
+    assert has_element?(view, "##{id}")
+    assert_text(view, "Hello, Sergio")
+
+    live_assign(view, name: "Fran")
+
+    assert has_element?(view, "##{id}")
+    assert_text(view, "Hello, Fran")
+  end
+
   defp assert_text(view, text) do
     assert view
            |> element(".a-class")

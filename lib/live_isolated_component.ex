@@ -56,7 +56,7 @@ defmodule LiveIsolatedComponent do
     def render(assigns) do
       ~H"""
         <.live_component
-          id="some-unique-id"
+          id={@assigns.id}
           module={@component}
           {@assigns}
           {StoreAgent.get_slots(@store_agent, @assigns)}
@@ -92,7 +92,7 @@ defmodule LiveIsolatedComponent do
     def handle_info({@assign_updates_event, pid}, socket) do
       values = Agent.get(pid, & &1)
       Agent.stop(pid)
-      {:noreply, assign(socket, :assigns, values)}
+      {:noreply, assign(socket, :assigns, Map.merge(socket.assigns.assigns, values))}
     end
 
     def handle_info(event, socket) do
@@ -187,7 +187,7 @@ defmodule LiveIsolatedComponent do
      is only available if you are using keywords, as this data structure preserves
      all values.
   """
-  defmacro live_isolated_component(component, opts \\ %{}) do
+  defmacro live_isolated_component(component, opts \\ quote(do: %{})) do
     quote do
       opts = if is_map(unquote(opts)), do: [assigns: unquote(opts)], else: unquote(opts)
       test_pid = self()
