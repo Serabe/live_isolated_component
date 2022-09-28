@@ -3,23 +3,33 @@ defmodule TestAppWeb.Live.FunctionComponentTest do
 
   import LiveIsolatedComponent
   import Phoenix.LiveViewTest
+  import Phoenix.LiveView, only: [assign_new: 3]
   import Phoenix.LiveView.Helpers, only: [render_slot: 1, sigil_H: 2]
 
   def fn_component(assigns) do
     assigns =
-      Map.merge(
-        %{
-          class: "class",
-          inner_block: fn -> [] end
-        },
-        assigns
-      )
+      assigns
+      |> assign_new(:class, fn -> "class" end)
+      |> assign_new(:inner_block, fn -> [] end)
 
     ~H"""
-    <button class={@class} phx-click="event">
+    <button class={@class} phx-click="event" id={@id}>
       <%= render_slot(@inner_block) %>
     </button>
     """
+  end
+
+  test "id by default is some-unique-id" do
+    {:ok, view, _html} = live_isolated_component(&fn_component/1)
+
+    assert has_element?(view, "#some-unique-id")
+  end
+
+  test "id can be overriden" do
+    id = "some-other-id"
+    {:ok, view, _html} = live_isolated_component(&fn_component/1, assigns: %{id: id})
+
+    assert has_element?(view, "##{id}")
   end
 
   test "displays slots" do

@@ -11,7 +11,7 @@ defmodule LiveIsolatedComponent.StoreAgent do
     Agent.stop(agent, reason, timeout)
   end
 
-  def get_assigns(pid), do: get_data(pid, :assigns, %{})
+  def get_assigns(pid), do: pid |> get_data(:assigns, %{}) |> Map.put_new(:id, "some-unique-id")
 
   def get_component(pid), do: get_data(pid, :component, nil)
 

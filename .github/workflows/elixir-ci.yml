@@ -2,9 +2,9 @@ name: Elixir CI
 
 on:
   push:
-    branches: [main, staging]
+    branches: [main, staging, lv-0.17]
   pull_request:
-    branches: [main, staging]
+    branches: [main, staging, lv-0.17]
 
 jobs:
   test:
@@ -31,7 +31,7 @@ jobs:
         id: plt-cache
         with:
           path: priv/plts
-          key: ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-plts-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+          key: ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-plts-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}-v0.17
       - name: Create PLTs
         if: steps.plt-cache.outputs.cache-hit != 'true'
         run: |
