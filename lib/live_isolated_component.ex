@@ -9,7 +9,7 @@ defmodule LiveIsolatedComponent do
   alias LiveIsolatedComponent.StoreAgent
   alias Phoenix.LiveView.HTMLEngine
 
-  @assign_updates_event "live_isolated_component_update_assigns_event"
+  @updates_event "live_isolated_component_update_event"
   @store_agent_key "live_isolated_component_store_agent"
 
   @handle_event_received_message_name :__live_isolated_component_handle_event_received__
@@ -20,9 +20,7 @@ defmodule LiveIsolatedComponent do
 
     use Phoenix.LiveView
 
-    alias Phoenix.Component
-
-    @assign_updates_event "live_isolated_component_update_assigns_event"
+    @updates_event "live_isolated_component_update_event"
     @store_agent_key "live_isolated_component_store_agent"
 
     @handle_event_received_message_name :__live_isolated_component_handle_event_received__
@@ -32,13 +30,7 @@ defmodule LiveIsolatedComponent do
       socket =
         socket
         |> assign(:store_agent, session[@store_agent_key])
-        |> then(fn socket ->
-          agent = store_agent_pid(socket)
-
-          socket
-          |> assign(:assigns, StoreAgent.get_assigns(agent))
-          |> assign(:component, StoreAgent.get_component(agent))
-        end)
+        |> update_socket_from_store_agent()
 
       {:ok, socket}
     end
@@ -91,10 +83,23 @@ defmodule LiveIsolatedComponent do
     defp denormalize_result({:reply, map, socket}, original_assigns),
       do: {:reply, map, denormalize_socket(socket, original_assigns)}
 
-    def handle_info({@assign_updates_event, pid}, socket) do
+    defp update_socket_from_store_agent(socket) do
+      agent = store_agent_pid(socket)
+
+      socket
+      |> assign(:assigns, StoreAgent.get_assigns(agent))
+      |> assign(:component, StoreAgent.get_component(agent))
+    end
+
+    def handle_info({@updates_event, pid}, socket) do
       values = Agent.get(pid, & &1)
       Agent.stop(pid)
-      {:noreply, assign(socket, :assigns, Map.merge(socket.assigns.assigns, values))}
+
+      socket
+      |> store_agent_pid()
+      |> StoreAgent.update(values)
+
+      {:noreply, update_socket_from_store_agent(socket)}
     end
 
     def handle_info(event, socket) do
@@ -143,9 +148,9 @@ defmodule LiveIsolatedComponent do
   def live_assign(view, keyword_or_map) do
     # We need to use agents because fns are not serializable.
     # The LV will stop this agent
-    {:ok, pid} = Agent.start(fn -> Enum.into(keyword_or_map, %{}) end)
+    {:ok, pid} = Agent.start(fn -> %{assigns: Enum.into(keyword_or_map, %{})} end)
 
-    send(view.pid, {@assign_updates_event, pid})
+    send(view.pid, {@updates_event, pid})
 
     render(view)
 

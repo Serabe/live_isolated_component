@@ -11,6 +11,18 @@ defmodule LiveIsolatedComponent.StoreAgent do
     Agent.stop(agent, reason, timeout)
   end
 
+  def update(pid, map) do
+    normalized_map = normalize_options(map)
+    new_assigns = Map.get(normalized_map, :assigns, %{})
+    new_slots = Map.get(normalized_map, :slots, %{})
+
+    Agent.update(pid, fn state ->
+      state
+      |> Map.update(:assigns, %{}, &Map.merge(&1, new_assigns))
+      |> Map.update(:slots, %{}, &Map.merge(&1, new_slots))
+    end)
+  end
+
   def get_assigns(pid), do: pid |> get_data(:assigns, %{}) |> Map.put_new(:id, "some-unique-id")
 
   def get_component(pid), do: get_data(pid, :component, nil)
