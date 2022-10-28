@@ -35,6 +35,11 @@ defmodule LiveIsolatedComponent.StoreAgent do
     get_data(pid, :handle_info, fn _event, socket -> {:noreply, socket} end)
   end
 
+  def get_slots(pid) do
+    assigns = get_assigns(pid)
+    get_slots(pid, assigns)
+  end
+
   def get_slots(pid, assigns) do
     pid
     |> get_data(:slots, %{})

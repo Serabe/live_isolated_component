@@ -53,7 +53,7 @@ defmodule LiveIsolatedComponent do
           id={@assigns.id}
           module={@component}
           {@assigns}
-          {StoreAgent.get_slots(@store_agent, @assigns)}
+          {@slots}
           />
       """
     end
@@ -89,6 +89,7 @@ defmodule LiveIsolatedComponent do
       socket
       |> assign(:assigns, StoreAgent.get_assigns(agent))
       |> assign(:component, StoreAgent.get_component(agent))
+      |> assign(:slots, StoreAgent.get_slots(agent))
     end
 
     def handle_info({@updates_event, pid}, socket) do
