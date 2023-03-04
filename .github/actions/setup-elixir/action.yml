@@ -10,6 +10,10 @@ inputs:
     required: true
     description: "Erlang/OTP version to install"
     default: "25.0"
+  phoenix-version:
+    required: true
+    description: "Phoenix Version to use"
+    default: "1.7.0"
 
 runs:
   using: "composite"
