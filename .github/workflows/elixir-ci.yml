@@ -27,6 +27,7 @@ jobs:
         with:
           elixir-version: ${{ matrix.elixir }}
           otp-version: ${{ matrix.otp }}
+          phoenix-version: ${{ matrix.phoenix_version }}
       - run: mix format --check-formatted
       - run: mix test
       - run: mix credo --strict

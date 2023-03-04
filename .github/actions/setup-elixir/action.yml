@@ -32,7 +32,7 @@ runs:
           !_build/prod
           !test_app/_build/prod
           priv/plts
-        key: ${{ runner.os }}-${{ inputs.elixir-version }}-${{ inputs.otp-version }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+        key: ${{ runner.os }}-${{ inputs.elixir-version }}-${{ inputs.otp-version }}-${{ inputs.phoenix-version }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
     - name: Install Mix Base deps
       shell: bash
       if: steps.mix-cache.outputs.cache-hit != 'true'
@@ -40,4 +40,7 @@ runs:
         mix local.rebar --force
         mix local.hex --force
     - run: mix deps.get
+      shell: bash
+    - name: Phoenix Version
+      run: mix deps | grep "phoenix "
       shell: bash
