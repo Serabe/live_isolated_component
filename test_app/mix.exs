@@ -35,6 +35,10 @@ defmodule TestApp.MixProject do
   #
   # Type `mix help deps` for examples and options.
   defp deps do
+    "PHOENIX_VERSION"
+    |> System.get_env()
+    |> IO.inspect(label: "PHOENIX VERSION")
+
     [
       {:live_isolated_component, path: "../."},
       {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false},
