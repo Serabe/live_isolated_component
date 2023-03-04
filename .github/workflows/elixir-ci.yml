@@ -15,6 +15,11 @@ jobs:
       matrix:
         elixir: [1.13.0]
         otp: [24.2]
+        phoenix_version: [1.6.16, 1.7.0]
+
+    env:
+      PHOENIX_VERSION: ${{matrix.phoenix_version}}
+
     steps:
       - uses: actions/checkout@v2
       - name: Set up Elixir
@@ -22,6 +27,7 @@ jobs:
         with:
           elixir-version: ${{ matrix.elixir }}
           otp-version: ${{ matrix.otp }}
+          phoenix-version: ${{ matrix.phoenix_version }}
       - run: mix format --check-formatted
       - run: mix test
       - run: mix credo --strict
