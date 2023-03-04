@@ -45,6 +45,8 @@ runs:
         mix local.hex --force
     - run: mix deps.get
       shell: bash
+    - run: mix deps.update phoenix
+      shell: bash
     - name: Phoenix Version
       run: mix deps | grep "phoenix "
       shell: bash
