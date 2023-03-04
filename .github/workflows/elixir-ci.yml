@@ -51,4 +51,5 @@ jobs:
         run: |
           cd test_app
           mix deps.get
+          mix deps | grep "phoenix "
           mix test
