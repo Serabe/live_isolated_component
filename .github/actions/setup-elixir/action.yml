@@ -10,6 +10,10 @@ inputs:
     required: true
     description: "Erlang/OTP version to install"
     default: "25.0"
+  phoenix-version:
+    required: true
+    description: "Phoenix Version to use"
+    default: "1.7.0"
 
 runs:
   using: "composite"
@@ -21,7 +25,7 @@ runs:
         elixir-version: "${{ inputs.elixir-version }}"
         otp-version: "${{ inputs.otp-version }}"
     - name: Restore mix deps cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       id: mix-cache
       with:
         path: |
@@ -32,7 +36,10 @@ runs:
           !_build/prod
           !test_app/_build/prod
           priv/plts
-        key: ${{ runner.os }}-${{ inputs.elixir-version }}-${{ inputs.otp-version }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+        key: mix-${{ runner.os }}-${{ inputs.elixir-version }}-${{ inputs.otp-version }}-${{ inputs.phoenix-version }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+        restore-keys: |
+          mix-${{ runner.os }}-${{ inputs.elixir-version }}-${{ inputs.otp-version }}-${{ inputs.phoenix-version }}-
+          mix-${{ runner.os }}-${{ inputs.elixir-version }}-${{ inputs.otp-version }}-
     - name: Install Mix Base deps
       shell: bash
       if: steps.mix-cache.outputs.cache-hit != 'true'
@@ -40,4 +47,7 @@ runs:
         mix local.rebar --force
         mix local.hex --force
     - run: mix deps.get
+      shell: bash
+    - name: Phoenix Version
+      run: mix deps | grep "phoenix "
       shell: bash

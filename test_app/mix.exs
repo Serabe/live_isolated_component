@@ -35,10 +35,14 @@ defmodule TestApp.MixProject do
   #
   # Type `mix help deps` for examples and options.
   defp deps do
+    "PHOENIX_VERSION"
+    |> System.get_env()
+    |> IO.inspect(label: "PHOENIX VERSION")
+
     [
       {:live_isolated_component, path: "../."},
       {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false},
-      {:phoenix, "~> 1.6.7"},
+      {:phoenix, "~> #{System.get_env("PHOENIX_VERSION", "1.6.0")}"},
       {:phoenix_html, "~> 3.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 0.18.0"},
