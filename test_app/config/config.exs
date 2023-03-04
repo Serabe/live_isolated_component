@@ -10,7 +10,6 @@ import Config
 # Configures the endpoint
 config :test_app, TestAppWeb.Endpoint,
   url: [host: "localhost"],
-  render_errors: [view: TestAppWeb.ErrorView, accepts: ~w(html json), layout: false],
   pubsub_server: TestApp.PubSub,
   live_view: [signing_salt: "9LWsST8K"]
 
