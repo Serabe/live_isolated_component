@@ -33,11 +33,14 @@ jobs:
       - run: mix credo --strict
       - run: mix compile --error-on-warnings
       - name: Retrieve PLT Cache
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         id: plt-cache
         with:
           path: priv/plts
-          key: ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ matrix.phoenix_version }}-plts-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+          key: plts-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ matrix.phoenix_version }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+          restore-keys: |
+            plts-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ matrix.phoenix_version }}-
+            plts-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-
       - name: Create PLTs
         if: steps.plt-cache.outputs.cache-hit != 'true'
         run: |

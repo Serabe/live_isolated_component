@@ -25,7 +25,7 @@ runs:
         elixir-version: "${{ inputs.elixir-version }}"
         otp-version: "${{ inputs.otp-version }}"
     - name: Restore mix deps cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       id: mix-cache
       with:
         path: |
@@ -36,7 +36,10 @@ runs:
           !_build/prod
           !test_app/_build/prod
           priv/plts
-        key: ${{ runner.os }}-${{ inputs.elixir-version }}-${{ inputs.otp-version }}-${{ inputs.phoenix-version }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+        key: mix-${{ runner.os }}-${{ inputs.elixir-version }}-${{ inputs.otp-version }}-${{ inputs.phoenix-version }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+        restore-keys: |
+          mix-${{ runner.os }}-${{ inputs.elixir-version }}-${{ inputs.otp-version }}-${{ inputs.phoenix-version }}-
+          mix-${{ runner.os }}-${{ inputs.elixir-version }}-${{ inputs.otp-version }}-
     - name: Install Mix Base deps
       shell: bash
       if: steps.mix-cache.outputs.cache-hit != 'true'
