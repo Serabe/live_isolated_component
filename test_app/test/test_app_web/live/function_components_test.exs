@@ -9,6 +9,7 @@ defmodule TestAppWeb.Live.FunctionComponentTest do
     assigns =
       assigns
       |> assign_new(:class, fn -> "class" end)
+      |> assign_new(:id, fn -> "some-id" end)
       |> assign_new(:inner_block, fn -> [] end)
 
     ~H"""
@@ -16,12 +17,6 @@ defmodule TestAppWeb.Live.FunctionComponentTest do
       <%= render_slot(@inner_block) %>
     </button>
     """
-  end
-
-  test "id by default is some-unique-id" do
-    {:ok, view, _html} = live_isolated_component(&fn_component/1)
-
-    assert has_element?(view, "#some-unique-id")
   end
 
   test "id can be overriden" do

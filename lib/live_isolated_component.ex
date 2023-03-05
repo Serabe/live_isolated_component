@@ -48,6 +48,10 @@ defmodule LiveIsolatedComponent do
     end
 
     def render(assigns) do
+      new_inner_assigns = Map.put_new(assigns.assigns, :id, "some-unique-id")
+
+      assigns = Map.put(assigns, :assigns, new_inner_assigns)
+
       ~H"""
         <.live_component
           id={@assigns.id}
