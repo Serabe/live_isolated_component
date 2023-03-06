@@ -395,7 +395,28 @@ defmodule LiveIsolatedComponent do
       end
 
     {_assigns, without_assigns} = Keyword.pop(content, :assigns, quote(do: assigns))
-    {let, without_assigns_and_let} = Keyword.pop(without_assigns, :let, quote(do: __inner_let))
+
+    {let_name, without_assigns_and_let} =
+      Keyword.pop(without_assigns, :let, quote(do: __inner_let))
+
+    # Add the with block to deal with warning because of the let.
+    # In LV 0.18 a warning was introduced to prevent the use of
+    # variables outside the assigns:
+    # https://github.com/phoenixframework/phoenix_live_view/blob/82b349278cc5ced4f0c99fe27d0988b42197d8ce/lib/phoenix_live_view/engine.ex#L1085-L1107
+    # This fixes this warning as it sets the value using a with block.
+    block =
+      Macro.prewalk(block, fn
+        {:sigil_H, meta, content} ->
+          {:<<>>, str_meta, [str]} = content |> hd()
+
+          new_str =
+            "<%= with #{Macro.to_string(let_name)} <- @__lic_component_slot_let__ do %>#{str}<% end %>"
+
+          {:sigil_H, meta, [{:<<>>, str_meta, [new_str]} | tl(content)]}
+
+        other ->
+          other
+      end)
 
     slot_attrs = {:%{}, metadata, without_assigns_and_let}
 
@@ -405,7 +426,9 @@ defmodule LiveIsolatedComponent do
       |> Map.merge(%{
         __live_isolated_slot__: true,
         inner_block: fn var!(assigns) ->
-          fn _changed, unquote(let) ->
+          fn _changed, let_value ->
+            var!(assigns) = Map.put(var!(assigns), :__lic_component_slot_let__, let_value)
+
             unquote(block)
           end
         end
