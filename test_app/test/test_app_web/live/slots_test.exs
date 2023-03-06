@@ -42,7 +42,7 @@ defmodule TestAppWeb.Live.TableComponentTest do
                   if 2 * 3 == 5 do
                     ~H[Yes <%= arg %>]
                   else
-                    ~H[Not <%= arg %>]
+                    ~H[No <%= arg %>]
                   end
                 end,
                 @type_of_slot
