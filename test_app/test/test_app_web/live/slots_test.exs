@@ -29,6 +29,7 @@ defmodule TestAppWeb.Live.TableComponentTest do
         assert has_element?(view, "[data-test-hola]", "Hola")
       end
 
+      @tag :let_warning
       test "accepts arguments (simple)" do
         {:ok, view, _html} =
           live_isolated_component(TimesTwoComponent,
