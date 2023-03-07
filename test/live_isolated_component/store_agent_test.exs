@@ -26,20 +26,6 @@ defmodule LiveIsolatedComponent.StoreAgentTest do
       assert %{a: "hola"} = StoreAgent.get_assigns(pid)
     end
 
-    test "adds id if not present" do
-      assigns = %{a: "hola"}
-      {:ok, pid} = StoreAgent.start(always(assigns: assigns))
-
-      assert %{id: "some-unique-id"} = StoreAgent.get_assigns(pid)
-    end
-
-    test "honors id if present" do
-      assigns = %{id: "hola"}
-      {:ok, pid} = StoreAgent.start(always(assigns: assigns))
-
-      assert %{id: "hola"} = StoreAgent.get_assigns(pid)
-    end
-
     test "returns empty map if assigns is not passed" do
       {:ok, pid} = StoreAgent.start(always(%{}))
 

@@ -23,7 +23,7 @@ defmodule LiveIsolatedComponent.StoreAgent do
     end)
   end
 
-  def get_assigns(pid), do: pid |> get_data(:assigns, %{}) |> Map.put_new(:id, "some-unique-id")
+  def get_assigns(pid), do: pid |> get_data(:assigns, %{})
 
   def get_component(pid), do: get_data(pid, :component, nil)
 
