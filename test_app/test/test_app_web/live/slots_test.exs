@@ -29,6 +29,7 @@ defmodule TestAppWeb.Live.TableComponentTest do
         assert has_element?(view, "[data-test-hola]", "Hola")
       end
 
+      @tag :let_warning
       test "accepts arguments (simple)" do
         {:ok, view, _html} =
           live_isolated_component(TimesTwoComponent,
@@ -38,13 +39,17 @@ defmodule TestAppWeb.Live.TableComponentTest do
             slots:
               process_slot(
                 slot(%{let: arg}) do
-                  ~H[<%= arg %>]
+                  if 2 * 3 == 5 do
+                    ~H[Yes <%= arg %>]
+                  else
+                    ~H[No <%= arg %>]
+                  end
                 end,
                 @type_of_slot
               )
           )
 
-        assert has_element?(view, "[data-phx-component]", "4")
+        assert has_element?(view, "[data-phx-component]", "No 4")
       end
 
       test "accepts arguments (destructuring)" do
