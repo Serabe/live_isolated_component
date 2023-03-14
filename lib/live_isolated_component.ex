@@ -7,7 +7,7 @@ defmodule LiveIsolatedComponent do
   import Phoenix.LiveViewTest, only: [live_isolated: 3, render: 1]
 
   alias LiveIsolatedComponent.StoreAgent
-  alias Phoenix.LiveView.HTMLEngine
+  alias Phoenix.LiveView.TagEngine
 
   @updates_event "live_isolated_component_update_event"
   @store_agent_key "live_isolated_component_store_agent"
@@ -37,7 +37,7 @@ defmodule LiveIsolatedComponent do
 
     def render(%{component: component, store_agent: agent, assigns: component_assigns} = _assigns)
         when is_function(component) do
-      HTMLEngine.component(
+      TagEngine.component(
         component,
         Map.merge(
           component_assigns,
