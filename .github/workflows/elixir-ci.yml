@@ -15,7 +15,8 @@ jobs:
       matrix:
         elixir: [1.13.4, 1.14.0]
         otp: [24.2, 25.0]
-        phoenix_version: [1.6.16, 1.7.0]
+        phoenix-live-view-version: ["1.18.16", "~> 1.18.17"]
+        phoenix-version: [1.6.16, 1.7.0]
 
     env:
       PHOENIX_VERSION: ${{matrix.phoenix_version}}
@@ -27,7 +28,8 @@ jobs:
         with:
           elixir-version: ${{ matrix.elixir }}
           otp-version: ${{ matrix.otp }}
-          phoenix-version: ${{ matrix.phoenix_version }}
+          phoenix-live-view-version: ${{ matrix.phoenix-live-view-version }}
+          phoenix-version: ${{ matrix.phoenix-version }}
       - run: mix format --check-formatted
       - run: mix test
       - run: mix credo --strict
@@ -37,9 +39,10 @@ jobs:
         id: plt-cache
         with:
           path: priv/plts
-          key: plts-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ matrix.phoenix_version }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+          key: plts-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ matrix.phoenix-version }}-${{ matrix.phoenix-live-view-version }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
           restore-keys: |
-            plts-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ matrix.phoenix_version }}-
+            plts-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ matrix.phoenix-version }}-${{ matrix.phoenix-live-view-version }}
+            plts-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ matrix.phoenix-version }}-
             plts-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-
       - name: Create PLTs
         if: steps.plt-cache.outputs.cache-hit != 'true'
