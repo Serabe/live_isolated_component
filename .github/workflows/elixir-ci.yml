@@ -19,7 +19,8 @@ jobs:
         phoenix-version: [1.6.16, 1.7.0]
 
     env:
-      PHOENIX_VERSION: ${{matrix.phoenix_version}}
+      PHOENIX_VERSION: ${{matrix.phoenix-version}}
+      PHOENIX_LIVE_VIEW_VERSION: ${{matrix.phoenix-live-view-version}}
 
     steps:
       - uses: actions/checkout@v2
