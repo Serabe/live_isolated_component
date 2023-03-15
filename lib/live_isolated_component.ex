@@ -7,7 +7,6 @@ defmodule LiveIsolatedComponent do
   import Phoenix.LiveViewTest, only: [live_isolated: 3, render: 1]
 
   alias LiveIsolatedComponent.StoreAgent
-  alias Phoenix.LiveView.HTMLEngine
 
   @updates_event "live_isolated_component_update_event"
   @store_agent_key "live_isolated_component_store_agent"
@@ -35,9 +34,12 @@ defmodule LiveIsolatedComponent do
       {:ok, socket}
     end
 
-    def render(%{component: component, store_agent: agent, assigns: component_assigns} = _assigns)
+    def render(
+          %{component: component, store_agent: agent, assigns: component_assigns, engine: engine} =
+            _assigns
+        )
         when is_function(component) do
-      HTMLEngine.component(
+      engine.component(
         component,
         Map.merge(
           component_assigns,
@@ -90,11 +92,28 @@ defmodule LiveIsolatedComponent do
     defp update_socket_from_store_agent(socket) do
       agent = store_agent_pid(socket)
 
+      component = StoreAgent.get_component(agent)
+
       socket
       |> assign(:assigns, StoreAgent.get_assigns(agent))
-      |> assign(:component, StoreAgent.get_component(agent))
+      |> assign(:component, component)
+      |> assign_engine(component)
       |> assign(:slots, StoreAgent.get_slots(agent))
     end
+
+    # In LiveView 0.18.17 component/3 moved from HTMLEngine to TagEngine.
+    # This is only used in functional components.
+    defp assign_engine(assigns, component) when is_function(component) do
+      engine =
+        Enum.find([Phoenix.LiveView.TagEngine, Phoenix.LiveView.HTMLEngine], fn mod ->
+          Code.ensure_loaded?(mod) and function_exported?(mod, :component, 3)
+        end)
+
+      assign(assigns, :engine, engine)
+    end
+
+    # Engine is not going to be used in stateful components
+    defp assign_engine(assigns, _component), do: assigns
 
     def handle_info({@updates_event, pid}, socket) do
       values = Agent.get(pid, & &1)

@@ -10,6 +10,10 @@ inputs:
     required: true
     description: "Erlang/OTP version to install"
     default: "25.0"
+  phoenix-live-view-version:
+    required: true
+    description: "Phoenix LiveView Version to use"
+    default: "~> 0.18.17"
   phoenix-version:
     required: true
     description: "Phoenix Version to use"
@@ -36,10 +40,9 @@ runs:
           !_build/prod
           !test_app/_build/prod
           priv/plts
-        key: mix-${{ runner.os }}-${{ inputs.elixir-version }}-${{ inputs.otp-version }}-${{ inputs.phoenix-version }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+        key: mix-${{ runner.os }}-${{ inputs.elixir-version }}-${{ inputs.otp-version }}-${{ inputs.phoenix-version }}-${{ inputs.phoenix-live-view-version }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
         restore-keys: |
-          mix-${{ runner.os }}-${{ inputs.elixir-version }}-${{ inputs.otp-version }}-${{ inputs.phoenix-version }}-
-          mix-${{ runner.os }}-${{ inputs.elixir-version }}-${{ inputs.otp-version }}-
+          mix-${{ runner.os }}-${{ inputs.elixir-version }}-${{ inputs.otp-version }}-${{ inputs.phoenix-version }}-${{ inputs.phoenix-live-view-version }}-
     - name: Install Mix Base deps
       shell: bash
       if: steps.mix-cache.outputs.cache-hit != 'true'

@@ -15,10 +15,14 @@ jobs:
       matrix:
         elixir: [1.13.4, 1.14.0]
         otp: [24.2, 25.0]
-        phoenix_version: [1.6.16, 1.7.0]
+        # 1.18.16 is the last version where component/3 is in Phoenix.LiveView.HTMLEngine
+        # 1.18.17 is the first version where component/3 is in Phoenix.LiveView.TagEngine
+        phoenix-live-view-version: ["0.18.16", "~> 0.18.17"]
+        phoenix-version: [1.6.16, 1.7.0]
 
     env:
-      PHOENIX_VERSION: ${{matrix.phoenix_version}}
+      PHOENIX_VERSION: ${{matrix.phoenix-version}}
+      PHOENIX_LIVE_VIEW_VERSION: ${{matrix.phoenix-live-view-version}}
 
     steps:
       - uses: actions/checkout@v2
@@ -27,7 +31,8 @@ jobs:
         with:
           elixir-version: ${{ matrix.elixir }}
           otp-version: ${{ matrix.otp }}
-          phoenix-version: ${{ matrix.phoenix_version }}
+          phoenix-live-view-version: ${{ matrix.phoenix-live-view-version }}
+          phoenix-version: ${{ matrix.phoenix-version }}
       - run: mix format --check-formatted
       - run: mix test
       - run: mix credo --strict
@@ -37,16 +42,13 @@ jobs:
         id: plt-cache
         with:
           path: priv/plts
-          key: plts-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ matrix.phoenix_version }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
-          restore-keys: |
-            plts-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ matrix.phoenix_version }}-
-            plts-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-
+          key: plts-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ matrix.phoenix-version }}-${{ matrix.phoenix-live-view-version }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
       - name: Create PLTs
         if: steps.plt-cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p priv/plts
           mix dialyzer --plt
-      - run: mix dialyzer --no-check --halt-exit-status
+      - run: mix dialyzer
       - name: Run test app tests
         run: |
           cd test_app
