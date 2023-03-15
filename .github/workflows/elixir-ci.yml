@@ -44,12 +44,7 @@ jobs:
             plts-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ matrix.phoenix-version }}-${{ matrix.phoenix-live-view-version }}
             plts-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ matrix.phoenix-version }}-
             plts-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-
-      - name: Create PLTs
-        if: steps.plt-cache.outputs.cache-hit != 'true'
-        run: |
-          mkdir -p priv/plts
-          mix dialyzer --plt
-      - run: mix dialyzer --no-check
+      - run: mix dialyzer
       - name: Run test app tests
         run: |
           cd test_app
