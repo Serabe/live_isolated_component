@@ -48,7 +48,7 @@ defmodule TestApp.MixProject do
       {:phoenix, "~> #{System.get_env("PHOENIX_VERSION", "1.6.0")}"},
       {:phoenix_html, "~> 3.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_live_view, System.get_eng("PHOENIX_LIVE_VIEW_VERSION", "~> 1.18.17")},
+      {:phoenix_live_view, System.get_env("PHOENIX_LIVE_VIEW_VERSION", "~> 1.18.17")},
       {:floki, ">= 0.30.0"},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
