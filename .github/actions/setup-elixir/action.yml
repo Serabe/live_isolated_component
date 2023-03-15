@@ -43,8 +43,6 @@ runs:
         key: mix-${{ runner.os }}-${{ inputs.elixir-version }}-${{ inputs.otp-version }}-${{ inputs.phoenix-version }}-${{ inputs.phoenix-live-view-version }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
         restore-keys: |
           mix-${{ runner.os }}-${{ inputs.elixir-version }}-${{ inputs.otp-version }}-${{ inputs.phoenix-version }}-${{ inputs.phoenix-live-view-version }}-
-          mix-${{ runner.os }}-${{ inputs.elixir-version }}-${{ inputs.otp-version }}-${{ inputs.phoenix-version }}-
-          mix-${{ runner.os }}-${{ inputs.elixir-version }}-${{ inputs.otp-version }}-
     - name: Install Mix Base deps
       shell: bash
       if: steps.mix-cache.outputs.cache-hit != 'true'
