@@ -49,7 +49,7 @@ jobs:
         run: |
           mkdir -p priv/plts
           mix dialyzer --plt
-      - run: mix dialyzer --no-check --halt-exit-status
+      - run: mix dialyzer --no-check
       - name: Run test app tests
         run: |
           cd test_app
