@@ -17,7 +17,7 @@ jobs:
         otp: [24.2, 25.0]
         # 1.18.16 is the last version where component/3 is in Phoenix.LiveView.HTMLEngine
         # 1.18.17 is the first version where component/3 is in Phoenix.LiveView.TagEngine
-        phoenix-live-view-version: ["0.18.16", "~> 0.18.17"]
+        phoenix-live-view-version: ["0.18.16", "~> 0.18.17", "~> 0.19.0"]
         phoenix-version: [1.6.16, 1.7.0]
 
     env:
