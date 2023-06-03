@@ -14,7 +14,7 @@ defmodule LiveIsolatedComponent.MixProject do
       app: :live_isolated_component,
       package: package(),
       version: @version,
-      elixir: "~> 1.14",
+      elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
