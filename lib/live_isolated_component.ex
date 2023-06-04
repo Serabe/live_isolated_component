@@ -36,10 +36,7 @@ defmodule LiveIsolatedComponent do
       {:ok, socket}
     end
 
-    def render(
-          %{component: component, store_agent: agent, assigns: component_assigns} =
-            _assigns
-        )
+    def render(%{component: component, store_agent: agent, assigns: component_assigns} = _assigns)
         when is_function(component) do
       TagEngine.component(
         component,
