@@ -13,8 +13,8 @@ while keeping the interactivity.
 ```elixir
 def deps do
   [
-    # If you are in LV 0.18
-    {:live_isolated_component, "~> 0.6.3", only: [:dev, :test]}
+    # If you are in LV 0.18 or above
+    {:live_isolated_component, "~> 0.6.5", only: [:dev, :test]}
     # If you are in LV 0.17
     {:live_isolated_component, "~> 0.5.2", only: [:dev, :test]}
   ]
