@@ -7,14 +7,14 @@ while keeping the interactivity.
 
 ## Installation
 
-> NOTE: If you are using LiveView 0.18, please use latest version. If you are still in 0.17 use 0.5.0
+> NOTE: If you are using LiveView 0.19, please use latest version. If you are still in 0.17 use 0.5.0
 > Phoenix 1.7: Make sure to be on 0.5.2 for LV 0.17 or 0.6.3 for LV 0.18.
 
 ```elixir
 def deps do
   [
     # If you are in LV 0.18 or above
-    {:live_isolated_component, "~> 0.6.5", only: [:dev, :test]}
+    {:live_isolated_component, "~> 0.6.6", only: [:dev, :test]}
     # If you are in LV 0.17
     {:live_isolated_component, "~> 0.5.2", only: [:dev, :test]}
   ]
