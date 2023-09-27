@@ -42,7 +42,7 @@ defmodule TestApp.MixProject do
 
     phoenix_lv_version =
       "PHOENIX_LIVE_VIEW_VERSION"
-      |> System.get_env("~> 0.20.0")
+      |> System.get_env("0.20.0")
       |> IO.inspect(label: "PHOENIX LIVE VIEW VERSION")
 
     [
@@ -51,7 +51,7 @@ defmodule TestApp.MixProject do
       {:phoenix, "~> #{phoenix_version}"},
       {:phoenix_html, "~> 3.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_live_view, phoenix_lv_version},
+      {:phoenix_live_view, "~> #{phoenix_lv_version}"},
       {:floki, ">= 0.30.0"},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
