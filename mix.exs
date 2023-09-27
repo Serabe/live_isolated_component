@@ -1,7 +1,7 @@
 defmodule LiveIsolatedComponent.MixProject do
   use Mix.Project
 
-  @version "0.6.6"
+  @version "0.7.1"
 
   def project do
     [
@@ -14,7 +14,7 @@ defmodule LiveIsolatedComponent.MixProject do
       app: :live_isolated_component,
       package: package(),
       version: @version,
-      elixir: "~> 1.13",
+      elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -40,12 +40,12 @@ defmodule LiveIsolatedComponent.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:credo, "~> 1.6.4", only: :dev, runtime: false},
-      {:mix_test_watch, "~> 1.1.0", only: :dev, runtime: false},
-      {:dialyxir, "~> 1.1.0", only: :dev, runtime: false},
-      {:ex_doc, "~> 0.28.4", only: :dev, runtime: false},
-      {:phoenix, "~> 1.6.0 or ~> 1.7.0"},
-      {:phoenix_live_view, "~> 0.18.0 or ~> 0.19.0 or ~> 0.20.0"}
+      {:credo, "~> 1.7.0", only: :dev, runtime: false},
+      {:dialyxir, "~> 1.4.1", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.30.6", only: :dev, runtime: false},
+      {:mix_test_watch, "~> 1.1.1", only: :dev, runtime: false},
+      {:phoenix, "~> 1.7.0"},
+      {:phoenix_live_view, "~> 0.19.0"}
     ]
   end
 end

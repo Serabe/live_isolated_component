@@ -7,14 +7,15 @@ while keeping the interactivity.
 
 ## Installation
 
-> NOTE: If you are using LiveView 0.19, please use latest version. If you are still in 0.17 use 0.5.0
-> Phoenix 1.7: Make sure to be on 0.5.2 for LV 0.17 or 0.6.3 for LV 0.18.
+> Version `0.7.0` drops support for some older versions of Elixir, OTP, Phoenix and Phoenix LiveView. This was done because the current CI matrix generated 24 different builds and just adding OTP 26 would mean duplicating that. Also, removing support for LiveView 0.18.16 drop some code.
 
 ```elixir
 def deps do
   [
+    # If you are using OTP 25 or above, Elixir 1.14, Phoenix 1.7, LiveView 0.19:
+    {:live_isolated_component, "~> 0.7.0", only: [:dev, :test]}
     # If you are in LV 0.18 or above
-    {:live_isolated_component, "~> 0.6.6", only: [:dev, :test]}
+    {:live_isolated_component, "~> 0.6.5", only: [:dev, :test]}
     # If you are in LV 0.17
     {:live_isolated_component, "~> 0.5.2", only: [:dev, :test]}
   ]
