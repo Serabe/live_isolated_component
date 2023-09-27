@@ -13,7 +13,7 @@ while keeping the interactivity.
 def deps do
   [
     # If you are using OTP 25 or above, Elixir 1.14, Phoenix 1.7, LiveView 0.19:
-    {:live_isolated_component, "~> 0.6.5", only: [:dev, :test]}
+    {:live_isolated_component, "~> 0.7.0", only: [:dev, :test]}
     # If you are in LV 0.18 or above
     {:live_isolated_component, "~> 0.6.5", only: [:dev, :test]}
     # If you are in LV 0.17
