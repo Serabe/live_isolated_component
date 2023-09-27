@@ -45,7 +45,7 @@ defmodule LiveIsolatedComponent.MixProject do
       {:dialyxir, "~> 1.1.0", only: :dev, runtime: false},
       {:ex_doc, "~> 0.28.4", only: :dev, runtime: false},
       {:phoenix, "~> 1.6.0 or ~> 1.7.0"},
-      {:phoenix_live_view, "~> 0.18.0 or ~> 0.19.0"}
+      {:phoenix_live_view, "~> 0.18.0 or ~> 0.19.0 or ~> 0.20.0"}
     ]
   end
 end
