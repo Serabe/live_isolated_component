@@ -11,7 +11,7 @@ defmodule LiveIsolatedComponent.MessageNames do
   def handle_info_received_message, do: :__live_isolated_component_handle_info_received__
 
   @doc false
-  def store_agent_key, do:  "live_isolated_component_store_agent"
+  def store_agent_key, do: "live_isolated_component_store_agent"
 
   @doc false
   def updates_event, do: "live_isolated_component_update_event"

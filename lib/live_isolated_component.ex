@@ -8,204 +8,6 @@ defmodule LiveIsolatedComponent do
 
   alias LiveIsolatedComponent.StoreAgent
 
-  defmodule Utils do
-    import Phoenix.Component
-
-    def store_agent_pid(%{assigns: %{store_agent: pid}}) when is_pid(pid),
-      do: pid
-
-    def update_socket_from_store_agent(socket) do
-      agent = Utils.store_agent_pid(socket)
-
-      component = StoreAgent.get_component(agent)
-
-      socket
-      |> assign(:assigns, StoreAgent.get_assigns(agent))
-      |> assign(:component, component)
-      |> assign(:slots, StoreAgent.get_slots(agent))
-    end
-
-    def denormalize_socket(socket, original_assigns) do
-      socket
-      |> Map.put(:assigns, original_assigns)
-      |> assign(:assigns, socket.assigns)
-    end
-
-    def normalize_socket(socket, original_assigns) do
-      assign_like_structure = Map.put(original_assigns.assigns, :__changed__, %{})
-      Map.put(socket, :assigns, assign_like_structure)
-    end
-
-    def send_to_test(socket, original_assigns, message) do
-      socket
-      |> denormalize_socket(original_assigns)
-      |> Utils.store_agent_pid()
-      |> StoreAgent.send_to_test(message)
-    end
-
-  end
-
-  defmodule HandleEventSpyHook do
-    import Phoenix.LiveView
-
-    def on_mount(:default, _params, _session, socket) do
-      {:cont, attach_hook(socket, :lic_handle_event_spy, :handle_event, &handle_event/3)}
-    end
-
-    def handle_event(event, params, socket) do
-      original_assigns = socket.assigns
-
-      Utils.send_to_test(
-        socket,
-        original_assigns,
-        {LiveIsolatedComponent.MessageNames.handle_event_received_message(), self(), {event, params}}
-      )
-
-      {:cont, socket}
-    end
-  end
-
-  defmodule HandleInfoSpyHook do
-    import Phoenix.LiveView
-
-    def on_mount(:default, _params, _session, socket) do
-      {:cont, attach_hook(socket, :lic_handle_info_spy, :handle_info, &handle_info/2)}
-    end
-
-    def handle_info(event, socket) do
-      original_assigns = socket.assigns
-
-      Utils.send_to_test(
-        socket,
-        original_assigns,
-        {LiveIsolatedComponent.MessageNames.handle_info_received_message(), self(), event}
-      )
-
-      {:cont, socket}
-    end
-
-  end
-
-  defmodule AssignsUpdateSpyHook do
-    import Phoenix.LiveView
-
-    @event_name LiveIsolatedComponent.MessageNames.updates_event()
-
-    def on_mount(:default, _params, _session, socket) do
-      {:cont, attach_hook(socket, :lic_assings_update, :handle_info, &handle_info/2)}
-    end
-
-    def handle_info({@event_name, pid}, socket) do
-      values = Agent.get(pid, & &1)
-      Agent.stop(pid)
-
-      socket
-      |> Utils.store_agent_pid()
-      |> StoreAgent.update(values)
-
-      {:halt, Utils.update_socket_from_store_agent(socket)}
-    end
-
-    def handle_info(_message, socket), do: {:cont, socket}
-  end
-
-  defmodule View do
-    @moduledoc false
-
-    use Phoenix.LiveView
-
-    alias Phoenix.LiveView.TagEngine
-
-    def mount(params, session, socket) do
-      socket =
-        socket
-        |> assign(:store_agent, session[LiveIsolatedComponent.MessageNames.store_agent_key()])
-        |> run_on_mount(params, session)
-        |> Utils.update_socket_from_store_agent()
-
-      {:ok, socket}
-    end
-
-    def render(%{component: component, store_agent: agent, assigns: component_assigns} = _assigns)
-        when is_function(component) do
-      TagEngine.component(
-        component,
-        Map.merge(
-          component_assigns,
-          StoreAgent.get_slots(agent, component_assigns)
-        ),
-        {__ENV__.module, __ENV__.function, __ENV__.file, __ENV__.line}
-      )
-    end
-
-    def render(assigns) do
-      new_inner_assigns = Map.put_new(assigns.assigns, :id, "some-unique-id")
-
-      assigns = Map.put(assigns, :assigns, new_inner_assigns)
-
-      ~H"""
-        <.live_component
-          id={@assigns.id}
-          module={@component}
-          {@assigns}
-          {@slots}
-          />
-      """
-    end
-
-    def handle_info(event, socket) do
-      handle_info = socket |> Utils.store_agent_pid() |> StoreAgent.get_handle_info()
-      original_assigns = socket.assigns
-
-      {:noreply, socket} = handle_info.(event, Utils.normalize_socket(socket, original_assigns))
-
-      {:noreply, Utils.denormalize_socket(socket, original_assigns)}
-    end
-
-    def handle_event(event, params, socket) do
-      handle_event = socket |> Utils.store_agent_pid() |> StoreAgent.get_handle_event()
-      original_assigns = socket.assigns
-
-      result = handle_event.(event, params, Utils.normalize_socket(socket, original_assigns))
-
-      Utils.send_to_test(
-        socket,
-        original_assigns,
-        {LiveIsolatedComponent.MessageNames.handle_event_result_message(), self(), handle_event_result_as_event_param(result)}
-      )
-
-      denormalize_result(result, original_assigns)
-    end
-
-    defp handle_event_result_as_event_param({:noreply, _socket}), do: :noreply
-    defp handle_event_result_as_event_param({:reply, map, _socket}), do: {:reply, map}
-
-    defp denormalize_result({:noreply, socket}, original_assigns),
-      do: {:noreply, Utils.denormalize_socket(socket, original_assigns)}
-
-    defp denormalize_result({:reply, map, socket}, original_assigns),
-      do: {:reply, map, Utils.denormalize_socket(socket, original_assigns)}
-
-
-    defp run_on_mount(socket, params, session),
-      do: run_on_mount(socket.assigns.store_agent, params, session, socket)
-
-    defp run_on_mount(agent, params, session, socket) do
-      agent |> StoreAgent.get_on_mount() |> add_lic_hooks() |> Enum.reduce(socket, &do_run_on_mount(&1, params, session, &2))
-    end
-
-    defp do_run_on_mount({module, first}, params, session, socket) do
-      {:cont, socket} = module.on_mount(first, params, session, socket)
-      socket
-    end
-
-    defp do_run_on_mount(module, params, session, socket),
-      do: do_run_on_mount({module, :default}, params, session, socket)
-
-    defp add_lic_hooks(list),
-      do: [HandleEventSpyHook, HandleInfoSpyHook, AssignsUpdateSpyHook | list]
-  end
-
   @doc """
   Updates the assigns of the component.
 
@@ -282,7 +84,7 @@ defmodule LiveIsolatedComponent do
           }
         end)
 
-      live_isolated(build_conn(), View,
+      live_isolated(build_conn(), LiveIsolatedComponent.View,
         session: %{
           unquote(LiveIsolatedComponent.MessageNames.store_agent_key()) => store_agent
         }
@@ -299,7 +101,8 @@ defmodule LiveIsolatedComponent do
 
       :sys.get_state(view_pid)
 
-      assert_receive {unquote(LiveIsolatedComponent.MessageNames.handle_event_result_message()), ^view_pid, unquote(return_value)}
+      assert_receive {unquote(LiveIsolatedComponent.MessageNames.handle_event_result_message()),
+                      ^view_pid, unquote(return_value)}
     end
   end
 
@@ -325,8 +128,8 @@ defmodule LiveIsolatedComponent do
 
       :sys.get_state(view_pid)
 
-      assert_receive {unquote(LiveIsolatedComponent.MessageNames.handle_event_received_message()), ^view_pid,
-                      {unquote(event), unquote(params)}},
+      assert_receive {unquote(LiveIsolatedComponent.MessageNames.handle_event_received_message()),
+                      ^view_pid, {unquote(event), unquote(params)}},
                      unquote(timeout)
     end
   end
@@ -353,8 +156,8 @@ defmodule LiveIsolatedComponent do
 
       :sys.get_state(view_pid)
 
-      refute_receive {unquote(LiveIsolatedComponent.MessageNames.handle_event_received_message()), ^view_pid,
-                      {unquote(event), unquote(params)}, _},
+      refute_receive {unquote(LiveIsolatedComponent.MessageNames.handle_event_received_message()),
+                      ^view_pid, {unquote(event), unquote(params)}, _},
                      unquote(timeout)
     end
   end
@@ -374,7 +177,8 @@ defmodule LiveIsolatedComponent do
 
       :sys.get_state(view_pid)
 
-      assert_receive {unquote(LiveIsolatedComponent.MessageNames.handle_info_received_message()), ^view_pid, unquote(event)},
+      assert_receive {unquote(LiveIsolatedComponent.MessageNames.handle_info_received_message()),
+                      ^view_pid, unquote(event)},
                      unquote(timeout)
     end
   end
@@ -394,7 +198,8 @@ defmodule LiveIsolatedComponent do
 
       :sys.get_state(view_pid)
 
-      refute_receive {unquote(LiveIsolatedComponent.MessageNames.handle_info_received_message()), ^view_pid, unquote(event)},
+      refute_receive {unquote(LiveIsolatedComponent.MessageNames.handle_info_received_message()),
+                      ^view_pid, unquote(event)},
                      unquote(timeout)
     end
   end
