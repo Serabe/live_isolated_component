@@ -23,7 +23,7 @@ defmodule LiveIsolatedComponent.StoreAgent do
     end)
   end
 
-  def get_assigns(pid), do: pid |> get_data(:assigns, %{})
+  def get_assigns(pid), do: get_data(pid, :assigns, %{})
 
   def get_component(pid), do: get_data(pid, :component, nil)
 
@@ -34,6 +34,8 @@ defmodule LiveIsolatedComponent.StoreAgent do
   def get_handle_info(pid) do
     get_data(pid, :handle_info, fn _event, socket -> {:noreply, socket} end)
   end
+
+  def get_on_mount(pid), do: get_data(pid, :on_mount, [])
 
   def get_slots(pid) do
     assigns = get_assigns(pid)
