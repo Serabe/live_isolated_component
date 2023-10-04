@@ -8,13 +8,6 @@ defmodule LiveIsolatedComponent do
 
   alias LiveIsolatedComponent.StoreAgent
 
-  @updates_event "live_isolated_component_update_event"
-  @store_agent_key "live_isolated_component_store_agent"
-
-  @handle_event_received_message_name :__live_isolated_component_handle_event_received__
-  @handle_event_result_message_name :__live_isolated_component_handle_event_result_received__
-  @handle_info_received_message_name :__live_isolated_component_handle_info_received__
-
   defmodule Utils do
     import Phoenix.Component
 
@@ -55,8 +48,6 @@ defmodule LiveIsolatedComponent do
   defmodule HandleEventSpyHook do
     import Phoenix.LiveView
 
-    @handle_event_received_message_name :__live_isolated_component_handle_event_received__
-
     def on_mount(:default, _params, _session, socket) do
       {:cont, attach_hook(socket, :lic_handle_event_spy, :handle_event, &handle_event/3)}
     end
@@ -67,7 +58,7 @@ defmodule LiveIsolatedComponent do
       Utils.send_to_test(
         socket,
         original_assigns,
-        {@handle_event_received_message_name, self(), {event, params}}
+        {LiveIsolatedComponent.MessageNames.handle_event_received_message(), self(), {event, params}}
       )
 
       {:cont, socket}
@@ -76,8 +67,6 @@ defmodule LiveIsolatedComponent do
 
   defmodule HandleInfoSpyHook do
     import Phoenix.LiveView
-
-    @handle_info_received_message_name :__live_isolated_component_handle_info_received__
 
     def on_mount(:default, _params, _session, socket) do
       {:cont, attach_hook(socket, :lic_handle_info_spy, :handle_info, &handle_info/2)}
@@ -89,7 +78,7 @@ defmodule LiveIsolatedComponent do
       Utils.send_to_test(
         socket,
         original_assigns,
-        {@handle_info_received_message_name, self(), event}
+        {LiveIsolatedComponent.MessageNames.handle_info_received_message(), self(), event}
       )
 
       {:cont, socket}
@@ -100,13 +89,13 @@ defmodule LiveIsolatedComponent do
   defmodule AssignsUpdateSpyHook do
     import Phoenix.LiveView
 
-    @updates_event "live_isolated_component_update_event"
+    @event_name LiveIsolatedComponent.MessageNames.updates_event()
 
     def on_mount(:default, _params, _session, socket) do
       {:cont, attach_hook(socket, :lic_assings_update, :handle_info, &handle_info/2)}
     end
 
-    def handle_info({@updates_event, pid}, socket) do
+    def handle_info({@event_name, pid}, socket) do
       values = Agent.get(pid, & &1)
       Agent.stop(pid)
 
@@ -127,13 +116,10 @@ defmodule LiveIsolatedComponent do
 
     alias Phoenix.LiveView.TagEngine
 
-    @store_agent_key "live_isolated_component_store_agent"
-    @handle_event_result_message_name :__live_isolated_component_handle_event_result_received__
-
     def mount(params, session, socket) do
       socket =
         socket
-        |> assign(:store_agent, session[@store_agent_key])
+        |> assign(:store_agent, session[LiveIsolatedComponent.MessageNames.store_agent_key()])
         |> run_on_mount(params, session)
         |> Utils.update_socket_from_store_agent()
 
@@ -185,7 +171,7 @@ defmodule LiveIsolatedComponent do
       Utils.send_to_test(
         socket,
         original_assigns,
-        {@handle_event_result_message_name, self(), handle_event_result_as_event_param(result)}
+        {LiveIsolatedComponent.MessageNames.handle_event_result_message(), self(), handle_event_result_as_event_param(result)}
       )
 
       denormalize_result(result, original_assigns)
@@ -232,7 +218,7 @@ defmodule LiveIsolatedComponent do
     # The LV will stop this agent
     {:ok, pid} = Agent.start(fn -> %{assigns: Enum.into(keyword_or_map, %{})} end)
 
-    send(view.pid, {@updates_event, pid})
+    send(view.pid, {LiveIsolatedComponent.MessageNames.updates_event(), pid})
 
     render(view)
 
@@ -298,7 +284,7 @@ defmodule LiveIsolatedComponent do
 
       live_isolated(build_conn(), View,
         session: %{
-          unquote(@store_agent_key) => store_agent
+          unquote(LiveIsolatedComponent.MessageNames.store_agent_key()) => store_agent
         }
       )
     end
@@ -313,7 +299,7 @@ defmodule LiveIsolatedComponent do
 
       :sys.get_state(view_pid)
 
-      assert_receive {unquote(@handle_event_result_message_name), ^view_pid, unquote(return_value)}
+      assert_receive {unquote(LiveIsolatedComponent.MessageNames.handle_event_result_message()), ^view_pid, unquote(return_value)}
     end
   end
 
@@ -339,7 +325,7 @@ defmodule LiveIsolatedComponent do
 
       :sys.get_state(view_pid)
 
-      assert_receive {unquote(@handle_event_received_message_name), ^view_pid,
+      assert_receive {unquote(LiveIsolatedComponent.MessageNames.handle_event_received_message()), ^view_pid,
                       {unquote(event), unquote(params)}},
                      unquote(timeout)
     end
@@ -367,7 +353,7 @@ defmodule LiveIsolatedComponent do
 
       :sys.get_state(view_pid)
 
-      refute_receive {unquote(@handle_event_received_message_name), ^view_pid,
+      refute_receive {unquote(LiveIsolatedComponent.MessageNames.handle_event_received_message()), ^view_pid,
                       {unquote(event), unquote(params)}, _},
                      unquote(timeout)
     end
@@ -388,7 +374,7 @@ defmodule LiveIsolatedComponent do
 
       :sys.get_state(view_pid)
 
-      assert_receive {unquote(@handle_info_received_message_name), ^view_pid, unquote(event)},
+      assert_receive {unquote(LiveIsolatedComponent.MessageNames.handle_info_received_message()), ^view_pid, unquote(event)},
                      unquote(timeout)
     end
   end
@@ -408,7 +394,7 @@ defmodule LiveIsolatedComponent do
 
       :sys.get_state(view_pid)
 
-      refute_receive {unquote(@handle_info_received_message_name), ^view_pid, unquote(event)},
+      refute_receive {unquote(LiveIsolatedComponent.MessageNames.handle_info_received_message()), ^view_pid, unquote(event)},
                      unquote(timeout)
     end
   end
