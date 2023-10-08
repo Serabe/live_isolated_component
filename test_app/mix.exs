@@ -48,11 +48,12 @@ defmodule TestApp.MixProject do
     [
       {:live_isolated_component, path: "../."},
       {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false},
+      {:dom_helpers, "~> 0.2.0", only: [:test]},
       {:phoenix, "~> #{phoenix_version}"},
       {:phoenix_html, "~> 3.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> #{phoenix_lv_version}"},
-      {:floki, ">= 0.30.0"},
+      {:floki, ">= 0.34.0"},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
       {:jason, "~> 1.2"},

@@ -8,144 +8,6 @@ defmodule LiveIsolatedComponent do
 
   alias LiveIsolatedComponent.StoreAgent
 
-  @updates_event "live_isolated_component_update_event"
-  @store_agent_key "live_isolated_component_store_agent"
-
-  @handle_event_received_message_name :__live_isolated_component_handle_event_received__
-  @handle_info_received_message_name :__live_isolated_component_handle_info_received__
-
-  defmodule View do
-    @moduledoc false
-
-    use Phoenix.LiveView
-
-    alias Phoenix.LiveView.TagEngine
-
-    @updates_event "live_isolated_component_update_event"
-    @store_agent_key "live_isolated_component_store_agent"
-
-    @handle_event_received_message_name :__live_isolated_component_handle_event_received__
-    @handle_info_received_message_name :__live_isolated_component_handle_info_received__
-
-    def mount(_params, session, socket) do
-      socket =
-        socket
-        |> assign(:store_agent, session[@store_agent_key])
-        |> update_socket_from_store_agent()
-
-      {:ok, socket}
-    end
-
-    def render(%{component: component, store_agent: agent, assigns: component_assigns} = _assigns)
-        when is_function(component) do
-      TagEngine.component(
-        component,
-        Map.merge(
-          component_assigns,
-          StoreAgent.get_slots(agent, component_assigns)
-        ),
-        {__ENV__.module, __ENV__.function, __ENV__.file, __ENV__.line}
-      )
-    end
-
-    def render(assigns) do
-      new_inner_assigns = Map.put_new(assigns.assigns, :id, "some-unique-id")
-
-      assigns = Map.put(assigns, :assigns, new_inner_assigns)
-
-      ~H"""
-        <.live_component
-          id={@assigns.id}
-          module={@component}
-          {@assigns}
-          {@slots}
-          />
-      """
-    end
-
-    def handle_event(event, params, socket) do
-      handle_event = socket |> store_agent_pid() |> StoreAgent.get_handle_event()
-      original_assigns = socket.assigns
-
-      result = handle_event.(event, params, normalize_socket(socket, original_assigns))
-
-      send_to_test(
-        socket,
-        original_assigns,
-        {@handle_event_received_message_name, self(), {event, params},
-         handle_event_result_as_event_param(result)}
-      )
-
-      denormalize_result(result, original_assigns)
-    end
-
-    defp handle_event_result_as_event_param({:noreply, _socket}), do: :noreply
-    defp handle_event_result_as_event_param({:reply, map, _socket}), do: {:reply, map}
-
-    defp denormalize_result({:noreply, socket}, original_assigns),
-      do: {:noreply, denormalize_socket(socket, original_assigns)}
-
-    defp denormalize_result({:reply, map, socket}, original_assigns),
-      do: {:reply, map, denormalize_socket(socket, original_assigns)}
-
-    defp update_socket_from_store_agent(socket) do
-      agent = store_agent_pid(socket)
-
-      component = StoreAgent.get_component(agent)
-
-      socket
-      |> assign(:assigns, StoreAgent.get_assigns(agent))
-      |> assign(:component, component)
-      |> assign(:slots, StoreAgent.get_slots(agent))
-    end
-
-    def handle_info({@updates_event, pid}, socket) do
-      values = Agent.get(pid, & &1)
-      Agent.stop(pid)
-
-      socket
-      |> store_agent_pid()
-      |> StoreAgent.update(values)
-
-      {:noreply, update_socket_from_store_agent(socket)}
-    end
-
-    def handle_info(event, socket) do
-      handle_info = socket |> store_agent_pid() |> StoreAgent.get_handle_info()
-      original_assigns = socket.assigns
-
-      {:noreply, socket} = handle_info.(event, normalize_socket(socket, original_assigns))
-
-      send_to_test(
-        socket,
-        original_assigns,
-        {@handle_info_received_message_name, self(), event}
-      )
-
-      {:noreply, denormalize_socket(socket, original_assigns)}
-    end
-
-    defp send_to_test(socket, original_assigns, message) do
-      socket
-      |> denormalize_socket(original_assigns)
-      |> store_agent_pid()
-      |> StoreAgent.send_to_test(message)
-    end
-
-    defp store_agent_pid(%{assigns: %{store_agent: pid}}) when is_pid(pid), do: pid
-
-    defp denormalize_socket(socket, original_assigns) do
-      socket
-      |> Map.put(:assigns, original_assigns)
-      |> assign(:assigns, socket.assigns)
-    end
-
-    defp normalize_socket(socket, original_assigns) do
-      assign_like_structure = Map.put(original_assigns.assigns, :__changed__, %{})
-      Map.put(socket, :assigns, assign_like_structure)
-    end
-  end
-
   @doc """
   Updates the assigns of the component.
 
@@ -158,7 +20,7 @@ defmodule LiveIsolatedComponent do
     # The LV will stop this agent
     {:ok, pid} = Agent.start(fn -> %{assigns: Enum.into(keyword_or_map, %{})} end)
 
-    send(view.pid, {@updates_event, pid})
+    send(view.pid, {LiveIsolatedComponent.MessageNames.updates_event(), pid})
 
     render(view)
 
@@ -184,6 +46,7 @@ defmodule LiveIsolatedComponent do
     - `:assigns` accepts a map of assigns for the component.
     - `:handle_event` accepts a handler for the `handle_event` callback in the LiveView.
     - `:handle_info` accepts a handler for the `handle_info` callback in the LiveView.
+    - `:on_mount` accepts a list of either modules or tuples `{Module, parameter}`. See `Phoenix.LiveView.on_mount/1` for more info on the parameters.
     - `:slots` accepts different slot descriptors.
 
   ## More about slots
@@ -215,14 +78,15 @@ defmodule LiveIsolatedComponent do
             component: unquote(component),
             handle_event: Keyword.get(opts, :handle_event),
             handle_info: Keyword.get(opts, :handle_info),
+            on_mount: Keyword.get(opts, :on_mount),
             slots: Keyword.get(opts, :slots),
             test_pid: test_pid
           }
         end)
 
-      live_isolated(build_conn(), View,
+      live_isolated(build_conn(), LiveIsolatedComponent.View,
         session: %{
-          unquote(@store_agent_key) => store_agent
+          unquote(LiveIsolatedComponent.MessageNames.store_agent_key()) => store_agent
         }
       )
     end
@@ -237,8 +101,8 @@ defmodule LiveIsolatedComponent do
 
       :sys.get_state(view_pid)
 
-      assert_receive {unquote(@handle_event_received_message_name), ^view_pid, _,
-                      unquote(return_value)}
+      assert_receive {unquote(LiveIsolatedComponent.MessageNames.handle_event_result_message()),
+                      ^view_pid, unquote(return_value)}
     end
   end
 
@@ -264,8 +128,8 @@ defmodule LiveIsolatedComponent do
 
       :sys.get_state(view_pid)
 
-      assert_receive {unquote(@handle_event_received_message_name), ^view_pid,
-                      {unquote(event), unquote(params)}, _},
+      assert_receive {unquote(LiveIsolatedComponent.MessageNames.handle_event_received_message()),
+                      ^view_pid, {unquote(event), unquote(params)}},
                      unquote(timeout)
     end
   end
@@ -292,8 +156,8 @@ defmodule LiveIsolatedComponent do
 
       :sys.get_state(view_pid)
 
-      refute_receive {unquote(@handle_event_received_message_name), ^view_pid,
-                      {unquote(event), unquote(params)}, _},
+      refute_receive {unquote(LiveIsolatedComponent.MessageNames.handle_event_received_message()),
+                      ^view_pid, {unquote(event), unquote(params)}, _},
                      unquote(timeout)
     end
   end
@@ -313,7 +177,8 @@ defmodule LiveIsolatedComponent do
 
       :sys.get_state(view_pid)
 
-      assert_receive {unquote(@handle_info_received_message_name), ^view_pid, unquote(event)},
+      assert_receive {unquote(LiveIsolatedComponent.MessageNames.handle_info_received_message()),
+                      ^view_pid, unquote(event)},
                      unquote(timeout)
     end
   end
@@ -333,7 +198,8 @@ defmodule LiveIsolatedComponent do
 
       :sys.get_state(view_pid)
 
-      refute_receive {unquote(@handle_info_received_message_name), ^view_pid, unquote(event)},
+      refute_receive {unquote(LiveIsolatedComponent.MessageNames.handle_info_received_message()),
+                      ^view_pid, unquote(event)},
                      unquote(timeout)
     end
   end
