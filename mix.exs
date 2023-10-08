@@ -1,7 +1,8 @@
 defmodule LiveIsolatedComponent.MixProject do
   use Mix.Project
 
-  @version "0.7.1"
+  @source_url "https://github.com/Serabe/live_isolated_component"
+  @version "0.8.0"
 
   def project do
     [
@@ -16,7 +17,8 @@ defmodule LiveIsolatedComponent.MixProject do
       version: @version,
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      docs: docs()
     ]
   end
 
@@ -32,7 +34,7 @@ defmodule LiveIsolatedComponent.MixProject do
       maintainers: ["Sergio Arbeo"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/Serabe/live_isolated_component"},
-      files: ~w(lib LICENSE.txt mix.exs README.md),
+      files: ~w(CHANGELOG.md lib LICENSE.txt mix.exs README.md),
       description: "Simple library to test LV components live in isolation"
     ]
   end
@@ -46,6 +48,15 @@ defmodule LiveIsolatedComponent.MixProject do
       {:mix_test_watch, "~> 1.1.1", only: :dev, runtime: false},
       {:phoenix, "~> 1.7.0"},
       {:phoenix_live_view, "~> 0.19.0 or ~> 0.20.0"}
+    ]
+  end
+
+  defp docs do
+    [
+      extras: [{:"README.md", [title: "Overview"]}],
+      main: "readme",
+      source_url: @source_url,
+      source_ref: "v#{@version}"
     ]
   end
 end
