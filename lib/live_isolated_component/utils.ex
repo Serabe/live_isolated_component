@@ -1,4 +1,5 @@
 defmodule LiveIsolatedComponent.Utils do
+  @moduledoc false
   import Phoenix.Component
 
   alias LiveIsolatedComponent.StoreAgent

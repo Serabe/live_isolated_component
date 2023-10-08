@@ -49,8 +49,8 @@ defmodule LiveIsolatedComponent.Hooks.AssignsUpdateSpyHook do
   @moduledoc false
   import Phoenix.LiveView
 
-  alias LiveIsolatedComponent.Utils
   alias LiveIsolatedComponent.StoreAgent
+  alias LiveIsolatedComponent.Utils
 
   @event_name LiveIsolatedComponent.MessageNames.updates_event()
 
