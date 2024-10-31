@@ -13,10 +13,16 @@ jobs:
 
     strategy:
       matrix:
-        elixir: [1.17.3]
-        otp: [27.0]
+        platform: [elixir-1.16-otp-26, elixir-1.17-otp-27]
         phoenix-live-view-version: [0.19.0, 0.20.0]
         phoenix-version: [1.7.0]
+        include:
+          - otp: 26
+            elixir: 1.16
+            platform: elixir-1.16-otp-26
+          - otp: 27
+            elixir: 1.17
+            platform: elixir-1.17-otp-27
 
     env:
       PHOENIX_VERSION: ${{matrix.phoenix-version}}
