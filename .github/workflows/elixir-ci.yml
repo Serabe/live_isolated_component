@@ -13,8 +13,8 @@ jobs:
 
     strategy:
       matrix:
-        elixir: [1.16.3, 1.17.3]
-        otp: [26.0, 27.0]
+        elixir: [1.17.3]
+        otp: [27.0]
         phoenix-live-view-version: [0.19.0, 0.20.0]
         phoenix-version: [1.7.0]
 
