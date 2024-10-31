@@ -25,6 +25,7 @@ runs:
     - uses: actions/checkout@v2
     - name: Set up Elixir
       uses: erlef/setup-beam@v1
+      with:
         elixir-version: "${{ inputs.elixir-version }}"
         otp-version: "${{ inputs.otp-version }}"
     - name: Restore mix deps cache
