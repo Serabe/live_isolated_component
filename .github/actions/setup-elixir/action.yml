@@ -5,26 +5,26 @@ inputs:
   elixir-version:
     required: true
     description: "Elixir version to install"
-    default: "1.14"
+    default: "1.17"
   otp-version:
     required: true
     description: "Erlang/OTP version to install"
-    default: "25.0"
+    default: "27.0"
   phoenix-live-view-version:
     required: true
     description: "Phoenix LiveView Version to use"
-    default: "~> 0.18.17"
+    default: "~> 1.0.0"
   phoenix-version:
     required: true
     description: "Phoenix Version to use"
-    default: "1.7.0"
+    default: "1.7.15"
 
 runs:
   using: "composite"
   steps:
     - uses: actions/checkout@v2
     - name: Set up Elixir
-      uses: erlef/setup-beam@988e02bfe678367a02564f65ca2e37726dc0268f
+      uses: erlef/setup-beam@v1
       with:
         elixir-version: "${{ inputs.elixir-version }}"
         otp-version: "${{ inputs.otp-version }}"
