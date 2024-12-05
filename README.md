@@ -12,6 +12,9 @@ while keeping the interactivity.
 ```elixir
 def deps do
   [
+    # For support for LiveView 1.0.0:
+    # target the main branch
+
     # For support for LiveView 0.20:
     {:live_isolated_component, "~> 0.8.0", only: [:dev, :test]}
     # If you are using OTP 25 or above, Elixir 1.14, Phoenix 1.7, LiveView 0.19:

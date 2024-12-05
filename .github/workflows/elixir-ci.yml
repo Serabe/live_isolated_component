@@ -5,22 +5,49 @@ on:
     branches: [main, staging]
   pull_request:
     branches: [main, staging]
+env:
+  MIX_ENV: test
+  phoenix-version: 1.7.0
 
 jobs:
   test:
     name: Build and test
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        elixir: [1.14.5, 1.15.6]
-        otp: [25.0, 26.0]
-        phoenix-live-view-version: [0.19.0, 0.20.0]
-        phoenix-version: [1.7.0]
+        include:
+          - elixir: 1.14.5
+            otp: 24.3
+            phoenix-live-view-version: 0.19.0
 
-    env:
-      PHOENIX_VERSION: ${{matrix.phoenix-version}}
-      PHOENIX_LIVE_VIEW_VERSION: ${{matrix.phoenix-live-view-version}}
+          - elixir: 1.14.5
+            otp: 24.3
+            phoenix-live-view-version: 0.20.0
+
+          - elixir: 1.15.4
+            otp: 25.3
+            phoenix-live-view-version: 0.19.0
+
+          - elixir: 1.15.4
+            otp: 25.3
+            phoenix-live-view-version: 0.20.0
+
+          - elixir: 1.16.3
+            otp: 26.2
+            phoenix-live-view-version: 0.19.0
+
+          - elixir: 1.16.3
+            otp: 26.2
+            phoenix-live-view-version: 0.20.0
+
+          - elixir: 1.16.3
+            otp: 26.2
+            phoenix-live-view-version: 1.0.0
+
+          - elixir: 1.17.3
+            otp: 27.0
+            phoenix-live-view-version: 1.0.0
 
     steps:
       - uses: actions/checkout@v2
@@ -30,17 +57,17 @@ jobs:
           elixir-version: ${{ matrix.elixir }}
           otp-version: ${{ matrix.otp }}
           phoenix-live-view-version: ${{ matrix.phoenix-live-view-version }}
-          phoenix-version: ${{ matrix.phoenix-version }}
-      - run: mix format --check-formatted
-      - run: mix test
-      - run: mix credo --strict
+          phoenix-version: ${{ env.phoenix-version }}
       - run: mix compile --error-on-warnings
+      - run: mix test
+      - run: mix format --check-formatted
+      - run: mix credo --strict
       - name: Retrieve PLT Cache
         uses: actions/cache@v3
         id: plt-cache
         with:
           path: priv/plts
-          key: plts-v.2-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ matrix.phoenix-version }}-${{ matrix.phoenix-live-view-version }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+          key: plts-v.2-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ env.phoenix-version }}-${{ matrix.phoenix-live-view-version }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
       - name: Create PLTs
         if: steps.plt-cache.outputs.cache-hit != 'true'
         run: |
