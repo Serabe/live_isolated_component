@@ -5,17 +5,10 @@ defmodule LiveIsolatedComponent.View do
   alias LiveIsolatedComponent.Hooks
   alias LiveIsolatedComponent.StoreAgent
   alias LiveIsolatedComponent.Utils
+  alias LiveIsolatedComponent.ViewUtils
   alias Phoenix.LiveView.TagEngine
 
-  def mount(params, session, socket) do
-    socket =
-      socket
-      |> assign(:store_agent, session[LiveIsolatedComponent.MessageNames.store_agent_key()])
-      |> run_on_mount(params, session)
-      |> Utils.update_socket_from_store_agent()
-
-    {:ok, socket}
-  end
+  def mount(params, session, socket), do: ViewUtils.mount(params, session, socket)
 
   def render(%{component: component, store_agent: agent, assigns: component_assigns} = _assigns)
       when is_function(component) do
@@ -77,25 +70,4 @@ defmodule LiveIsolatedComponent.View do
 
   defp denormalize_result({:reply, map, socket}, original_assigns),
     do: {:reply, map, Utils.denormalize_socket(socket, original_assigns)}
-
-  defp run_on_mount(socket, params, session),
-    do: run_on_mount(socket.assigns.store_agent, params, session, socket)
-
-  defp run_on_mount(agent, params, session, socket) do
-    agent
-    |> StoreAgent.get_on_mount()
-    |> add_lic_hooks()
-    |> Enum.reduce(socket, &do_run_on_mount(&1, params, session, &2))
-  end
-
-  defp do_run_on_mount({module, first}, params, session, socket) do
-    {:cont, socket} = module.on_mount(first, params, session, socket)
-    socket
-  end
-
-  defp do_run_on_mount(module, params, session, socket),
-    do: do_run_on_mount({module, :default}, params, session, socket)
-
-  defp add_lic_hooks(list),
-    do: [Hooks.HandleEventSpyHook, Hooks.HandleInfoSpyHook, Hooks.AssignsUpdateSpyHook | list]
 end

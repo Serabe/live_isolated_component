@@ -10,11 +10,9 @@ defmodule LiveIsolatedComponent.Utils do
   def update_socket_from_store_agent(socket) do
     agent = store_agent_pid(socket)
 
-    component = StoreAgent.get_component(agent)
-
     socket
     |> assign(:assigns, StoreAgent.get_assigns(agent))
-    |> assign(:component, component)
+    |> assign(:component, StoreAgent.get_component(agent))
     |> assign(:slots, StoreAgent.get_slots(agent))
   end
 

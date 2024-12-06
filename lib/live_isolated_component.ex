@@ -84,7 +84,7 @@ defmodule LiveIsolatedComponent do
           }
         end)
 
-      live_isolated(build_conn(), LiveIsolatedComponent.View,
+      live_isolated(build_conn(), Keyword.get(opts, :mock_view, LiveIsolatedComponent.View),
         session: %{
           unquote(LiveIsolatedComponent.MessageNames.store_agent_key()) => store_agent
         }
