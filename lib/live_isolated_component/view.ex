@@ -2,7 +2,6 @@ defmodule LiveIsolatedComponent.View do
   @moduledoc false
   use Phoenix.LiveView
 
-  alias LiveIsolatedComponent.Hooks
   alias LiveIsolatedComponent.StoreAgent
   alias LiveIsolatedComponent.Utils
   alias LiveIsolatedComponent.ViewUtils

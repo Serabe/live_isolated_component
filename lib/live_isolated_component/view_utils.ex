@@ -8,6 +8,7 @@ defmodule LiveIsolatedComponent.ViewUtils do
   alias LiveIsolatedComponent.MessageNames
   alias LiveIsolatedComponent.StoreAgent
   alias LiveIsolatedComponent.Utils
+  alias Phoenix.Component
 
   @doc """
   Run this in your mock view `c:Phoenix.LiveView.mount/3`.
@@ -18,7 +19,7 @@ defmodule LiveIsolatedComponent.ViewUtils do
   def mount(params, session, socket, opts \\ []) do
     socket =
       socket
-      |> assign(:store_agent, session[MessageNames.store_agent_key()])
+      |> Component.assign(:store_agent, session[MessageNames.store_agent_key()])
       |> run_on_mount(params, session, opts)
       |> Utils.update_socket_from_store_agent()
 
