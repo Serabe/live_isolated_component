@@ -46,6 +46,7 @@ defmodule LiveIsolatedComponent do
     - `:assigns` accepts a map of assigns for the component.
     - `:handle_event` accepts a handler for the `handle_event` callback in the LiveView.
     - `:handle_info` accepts a handler for the `handle_info` callback in the LiveView.
+    - `:mock_view` accepts a Phoenix.LiveView to use as mock view. Please, refer to `LiveIsolatedComponent.View` for more info on how to customise these views.
     - `:on_mount` accepts a list of either modules or tuples `{Module, parameter}`. See `Phoenix.LiveView.on_mount/1` for more info on the parameters.
     - `:slots` accepts different slot descriptors.
 
