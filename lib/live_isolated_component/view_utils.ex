@@ -17,29 +17,31 @@ defmodule LiveIsolatedComponent.ViewUtils do
   Run this in your mock view `c:Phoenix.LiveView.mount/3`.
 
   ## Options
-  - `:on_mmount`, _boolean_, defaults to `true`. Can disable adding `on_mount` hooks.
+  - `:on_mount`, _boolean_, defaults to `true`. Can disable adding `on_mount` hooks.
   """
   def mount(params, session, socket, opts \\ []) do
-    socket =
-      socket
-      |> Component.assign(:store_agent, session[MessageNames.store_agent_key()])
-      |> run_on_mount(params, session, opts)
-      |> Utils.update_socket_from_store_agent()
-
-    {:ok, socket}
+    socket
+    |> Component.assign(:store_agent, session[MessageNames.store_agent_key()])
+    |> run_on_mount(params, session, opts)
+    |> Utils.update_socket_from_store_agent()
   end
+
+  @doc """
+  Use this function to get the slot list if for some reason is not working for you.
+  """
+  def prerender_slots(assigns), do: StoreAgent.get_slots(assigns.store_agent, assigns.assigns)
 
   @doc """
   This function renders the given component in `component` (be it a function or a module)
   with the given assigns and slots.
   """
-  def render(%{component: component, store_agent: agent, assigns: component_assigns} = _assigns)
+  def render(%{component: component, assigns: component_assigns} = assigns)
       when is_function(component) do
     TagEngine.component(
       component,
       Map.merge(
         component_assigns,
-        StoreAgent.get_slots(agent, component_assigns)
+        prerender_slots(assigns)
       ),
       {__ENV__.module, __ENV__.function, __ENV__.file, __ENV__.line}
     )
