@@ -48,6 +48,9 @@ jobs:
           - elixir: 1.17.3
             otp: 27.0
             phoenix-live-view-version: 1.0.0
+          - elixir: 1.18.0
+            otp: 27.0
+            phoenix-live-view-version: 1.0.0
 
     steps:
       - uses: actions/checkout@v2
@@ -62,18 +65,6 @@ jobs:
       - run: mix test
       - run: mix format --check-formatted
       - run: mix credo --strict
-      - name: Retrieve PLT Cache
-        uses: actions/cache@v3
-        id: plt-cache
-        with:
-          path: priv/plts
-          key: plts-v.2-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ env.phoenix-version }}-${{ matrix.phoenix-live-view-version }}-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
-      - name: Create PLTs
-        if: steps.plt-cache.outputs.cache-hit != 'true'
-        run: |
-          mkdir -p priv/plts
-          mix dialyzer --plt
-      - run: mix dialyzer
       - name: Run test app tests
         run: |
           cd test_app
