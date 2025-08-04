@@ -13,7 +13,7 @@ inputs:
   phoenix-live-view-version:
     required: true
     description: "Phoenix LiveView Version to use"
-    default: "~> 1.0.0"
+    default: "~> 1.1.0"
   phoenix-version:
     required: true
     description: "Phoenix Version to use"

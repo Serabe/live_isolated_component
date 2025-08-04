@@ -42,7 +42,7 @@ defmodule TestApp.MixProject do
 
     phoenix_lv_version =
       "PHOENIX_LIVE_VIEW_VERSION"
-      |> System.get_env("1.0.0")
+      |> System.get_env("1.1.0")
       |> IO.inspect(label: "PHOENIX LIVE VIEW VERSION")
 
     [
