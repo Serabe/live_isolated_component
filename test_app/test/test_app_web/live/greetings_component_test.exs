@@ -82,8 +82,8 @@ defmodule TestAppWeb.Live.GreetingsComponentTest do
     assert view
            |> element(".a-class")
            |> render()
-           |> Floki.parse_fragment!()
-           |> Floki.text()
+           |> LazyHTML.from_fragment()
+           |> LazyHTML.text()
            |> String.trim() ==
              text
   end

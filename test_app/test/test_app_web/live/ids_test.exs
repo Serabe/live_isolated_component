@@ -24,7 +24,12 @@ defmodule TestAppWeb.Live.IdsTest do
     {:ok, view, _html} =
       live_isolated_component(TestAppWeb.Live.GreetingsComponent, assigns: assigns)
 
-    refute view |> render() |> Floki.find(".a-class") |> Floki.attribute("id") |> Enum.empty?()
+    refute view
+           |> render()
+           |> LazyHTML.from_fragment()
+           |> LazyHTML.query(".a-class")
+           |> LazyHTML.attribute("id")
+           |> Enum.empty?()
   end
 
   test "function components does not have id by default" do
