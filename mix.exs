@@ -2,7 +2,7 @@ defmodule LiveIsolatedComponent.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/Serabe/live_isolated_component"
-  @version "0.9.0"
+  @version "0.10.0"
 
   def project do
     [
@@ -15,7 +15,7 @@ defmodule LiveIsolatedComponent.MixProject do
       app: :live_isolated_component,
       package: package(),
       version: @version,
-      elixir: "~> 1.14",
+      elixir: "~> 1.17",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       docs: docs()
