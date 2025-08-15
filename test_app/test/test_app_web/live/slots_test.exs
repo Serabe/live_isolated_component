@@ -88,7 +88,7 @@ defmodule TestAppWeb.Live.TableComponentTest do
           }
         )
 
-      assert has_element?(view, "option[value=5][selected]", "Fifth")
+      assert has_element?(view, ~s|option[value="5"][selected]|, "Fifth")
     end
 
     test "displays several slots for the same name" do
@@ -132,9 +132,9 @@ defmodule TestAppWeb.Live.TableComponentTest do
           }
         )
 
-      assert has_element?(view, "option[value=5][selected]", "Fifth")
-      assert has_element?(view, "option[value=10]:not([selected])", "Tenth")
-      assert has_element?(view, "option[value=15]:not([selected])", "Fifteenth")
+      assert has_element?(view, ~s|option[value="5"][selected]|, "Fifth")
+      assert has_element?(view, ~s|option[value="10"]:not([selected])|, "Tenth")
+      assert has_element?(view, ~s|option[value="15"]:not([selected])|, "Fifteenth")
     end
 
     for {label, type_of_slot} <- [

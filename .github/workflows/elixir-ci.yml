@@ -43,14 +43,14 @@ jobs:
 
           - elixir: 1.16.3
             otp: 26.2
-            phoenix-live-view-version: 1.0.0
+            phoenix-live-view-version: 1.1.0
 
           - elixir: 1.17.3
             otp: 27.0
-            phoenix-live-view-version: 1.0.0
+            phoenix-live-view-version: 1.1.0
           - elixir: 1.18.0
             otp: 27.0
-            phoenix-live-view-version: 1.0.0
+            phoenix-live-view-version: 1.1.0
 
     steps:
       - uses: actions/checkout@v2

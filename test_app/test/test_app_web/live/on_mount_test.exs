@@ -1,6 +1,5 @@
 defmodule TestAppWeb.Live.OnMountTest do
   use TestAppWeb.ConnCase, async: true
-  use DomHelpers
 
   import LiveIsolatedComponent
   import Phoenix.Component, only: [sigil_H: 2]
@@ -54,12 +53,20 @@ defmodule TestAppWeb.Live.OnMountTest do
         on_mount: [IncProperty]
       )
 
-    assert view |> render() |> text(".comp") == "0"
+    assert view
+           |> render()
+           |> LazyHTML.from_fragment()
+           |> LazyHTML.query(".comp")
+           |> LazyHTML.text() == "0"
 
     send(view.pid, :inc)
     :sys.get_state(view.pid)
 
-    assert view |> render() |> text(".comp") == "1"
+    assert view
+           |> render()
+           |> LazyHTML.from_fragment()
+           |> LazyHTML.query(".comp")
+           |> LazyHTML.text() == "1"
   end
 
   test "on_mount sets the plugin up in the mock view (tuple)" do
@@ -72,12 +79,20 @@ defmodule TestAppWeb.Live.OnMountTest do
         on_mount: [{IncProperty, :prop}]
       )
 
-    assert view |> render() |> text(".comp") == "0"
+    assert view
+           |> render()
+           |> LazyHTML.from_fragment()
+           |> LazyHTML.query(".comp")
+           |> LazyHTML.text() == "0"
 
     send(view.pid, :inc)
     :sys.get_state(view.pid)
 
-    assert view |> render() |> text(".comp") == "1"
+    assert view
+           |> render()
+           |> LazyHTML.from_fragment()
+           |> LazyHTML.query(".comp")
+           |> LazyHTML.text() == "1"
   end
 
   test "on_mount does not hide the handle_info spy" do
@@ -90,12 +105,20 @@ defmodule TestAppWeb.Live.OnMountTest do
         on_mount: [IncProperty]
       )
 
-    assert view |> render() |> text(".comp") == "0"
+    assert view
+           |> render()
+           |> LazyHTML.from_fragment()
+           |> LazyHTML.query(".comp")
+           |> LazyHTML.text() == "0"
 
     send(view.pid, :inc)
     :sys.get_state(view.pid)
 
-    assert view |> render() |> text(".comp") == "1"
+    assert view
+           |> render()
+           |> LazyHTML.from_fragment()
+           |> LazyHTML.query(".comp")
+           |> LazyHTML.text() == "1"
 
     assert_handle_info(view, :inc)
   end
@@ -110,13 +133,21 @@ defmodule TestAppWeb.Live.OnMountTest do
         on_mount: [IncEvent]
       )
 
-    assert view |> render() |> text(".comp") == "0"
+    assert view
+           |> render()
+           |> LazyHTML.from_fragment()
+           |> LazyHTML.query(".comp")
+           |> LazyHTML.text() == "0"
 
     view
     |> element("button")
     |> render_click()
 
-    assert view |> render() |> text(".comp") == "1"
+    assert view
+           |> render()
+           |> LazyHTML.from_fragment()
+           |> LazyHTML.query(".comp")
+           |> LazyHTML.text() == "1"
 
     assert_handle_event(view, "inc")
   end
@@ -131,10 +162,18 @@ defmodule TestAppWeb.Live.OnMountTest do
         on_mount: [IncProperty]
       )
 
-    assert view |> render() |> text(".comp") == "0"
+    assert view
+           |> render()
+           |> LazyHTML.from_fragment()
+           |> LazyHTML.query(".comp")
+           |> LazyHTML.text() == "0"
 
     live_assign(view, default: 5)
 
-    assert view |> render() |> text(".comp") == "5"
+    assert view
+           |> render()
+           |> LazyHTML.from_fragment()
+           |> LazyHTML.query(".comp")
+           |> LazyHTML.text() == "5"
   end
 end

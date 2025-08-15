@@ -42,18 +42,17 @@ defmodule TestApp.MixProject do
 
     phoenix_lv_version =
       "PHOENIX_LIVE_VIEW_VERSION"
-      |> System.get_env("1.0.0")
+      |> System.get_env("1.1.0")
       |> IO.inspect(label: "PHOENIX LIVE VIEW VERSION")
 
     [
       {:live_isolated_component, path: "../."},
       {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false},
-      {:dom_helpers, "~> 0.3.1", only: [:test]},
+      {:lazy_html, ">= 0.1.0", only: :test},
       {:phoenix, "~> #{phoenix_version}"},
       {:phoenix_html, "~> 4.1"},
       {:phoenix_live_reload, "~> 1.5", only: :dev},
       {:phoenix_live_view, "~> #{phoenix_lv_version}", override: true},
-      {:floki, ">= 0.36.0", override: true},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
       {:jason, "~> 1.2"},
