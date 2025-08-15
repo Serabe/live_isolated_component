@@ -9,7 +9,7 @@ while keeping the interactivity.
 
 > Version `0.7.0` drops support for some older versions of Elixir, OTP, Phoenix and Phoenix LiveView. This was done because the current CI matrix generated 24 different builds and just adding OTP 26 would mean duplicating that. Also, removing support for LiveView 0.18.16 drop some code.
 
-> Note: Current version supports OTP 27 and above, Elixir 1.17 and above, Phoenix 1.7 and above, and LiveView 1.0 and above. 
+> Note: Current version supports OTP 27 and above, Elixir 1.17 and above, Phoenix 1.7 and above, and LiveView 1.0 and above. For the exact support matrix, check the elixir-ci workflow matrix.
 
 ```elixir
 def deps do
