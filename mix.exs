@@ -42,10 +42,10 @@ defmodule LiveIsolatedComponent.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:credo, "~> 1.7.10", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.4.5", only: [:dev, :test], runtime: false},
-      {:ex_doc, "~> 0.35.1", only: :dev, runtime: false},
-      {:mix_test_watch, "~> 1.2.0", only: :dev, runtime: false},
+      {:credo, "~> 1.7.12", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.4.6", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.38.2", only: :dev, runtime: false},
+      {:mix_test_watch, "~> 1.3.0", only: :dev, runtime: false},
       {:phoenix, "~> 1.7.0 or ~> 1.8.0"},
       {:phoenix_live_view, "~> 1.0.0 or ~> 1.1.0"}
     ]
