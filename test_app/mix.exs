@@ -47,7 +47,6 @@ defmodule TestApp.MixProject do
 
     [
       {:live_isolated_component, path: "../."},
-      {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false},
       {:lazy_html, ">= 0.1.0", only: :test},
       {:phoenix, "~> #{phoenix_version}"},
       {:phoenix_html, "~> 4.1"},
