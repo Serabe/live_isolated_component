@@ -9,11 +9,13 @@ while keeping the interactivity.
 
 > Version `0.7.0` drops support for some older versions of Elixir, OTP, Phoenix and Phoenix LiveView. This was done because the current CI matrix generated 24 different builds and just adding OTP 26 would mean duplicating that. Also, removing support for LiveView 0.18.16 drop some code.
 
-> Note: Current version supports OTP 25 and above, Elixir 1.14 and above, Phoenix 1.7, and LiveView 0.19 and above. When live_isolated_component reaches 1.0, it'll only actively support latest OTP and previouw, latest Elixir and previous, and LiveView above 1.0. That means that as soon as a version that is not supported actively starts to warns or error in CI, its support will be dropped. Thank you for your understanding!
+> Note: Current version supports OTP 27 and above, Elixir 1.17 and above, Phoenix 1.7 and above, and LiveView 1.0 and above. For the exact support matrix, check the elixir-ci workflow matrix.
 
 ```elixir
 def deps do
   [
+    # For support for LiveView 1.1.0 and Phoenix 1.8:
+    {:live_isolated_component, "~> 0.10.0", only: [:dev, :test]}
     # For support for LiveView 1.0.0:
     {:live_isolated_component, "~> 0.9.0", only: [:dev, :test]}
     # For support for LiveView 0.20:

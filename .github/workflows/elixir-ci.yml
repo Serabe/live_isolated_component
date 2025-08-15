@@ -16,10 +16,23 @@ jobs:
 
     strategy:
       matrix:
-        elixir: [1.18.4]
-        otp: [28]
-        phoenix-live-view-version: [1.0.0, 1.1.0]
-        phoenix-version: [1.7.0, 1.8.0]
+        include:
+          - elixir: 1.17.3
+            otp: 27
+            phoenix-live-view-version: 1.0.0
+            phoenix-version: 1.7.0
+          - elixir: 1.17.3
+            otp: 27
+            phoenix-live-view-version: 1.1.0
+            phoenix-version: 1.8.0
+          - elixir: 1.18.4
+            otp: 28
+            phoenix-live-view-version: 1.1.0
+            phoenix-version: 1.8.0
+          - elixir: 1.18.4
+            otp: 28
+            phoenix-live-view-version: 1.0.0
+            phoenix-version: 1.7.0
     steps:
       - uses: actions/checkout@v2
       - name: Set up Elixir
