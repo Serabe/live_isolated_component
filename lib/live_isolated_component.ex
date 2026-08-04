@@ -59,16 +59,37 @@ defmodule LiveIsolatedComponent do
   to be the slot name and the value, the different slots. Remember that the default slot's
   name is `inner_block`.
 
-  For passing multiple slots for the same name, you have two options:any()
+  For passing multiple slots for the same name, you have two options:
 
   1. You can give an array of slots as the value in the map or the keywords.
   2. You can pass the same name multiple times with different slots. This option
      is only available if you are using keywords, as this data structure preserves
      all values.
   """
-  defmacro live_isolated_component(component, opts \\ quote(do: %{})) do
+  defmacro live_isolated_component(component, opts \\ [])
+
+  # Literal map (e.g. `%{name: "test"}`) — wrap as assigns at compile time.
+  defmacro live_isolated_component(component, {:%{}, _, _} = map_opts) do
+    do_live_isolated_component(component, quote(do: [assigns: unquote(map_opts)]))
+  end
+
+  # Keyword list (e.g. `assigns: %{...}, handle_event: fn ...`) — pass through as-is.
+  defmacro live_isolated_component(component, opts) when is_list(opts) do
+    do_live_isolated_component(component, opts)
+  end
+
+  # Variable or expression — use a runtime is_map check to decide whether
+  # to wrap as assigns or pass through as options.
+  defmacro live_isolated_component(component, opts) do
+    do_live_isolated_component(
+      component,
+      quote(do: if(is_map(unquote(opts)), do: [assigns: unquote(opts)], else: unquote(opts)))
+    )
+  end
+
+  defp do_live_isolated_component(component, opts) do
     quote do
-      opts = if is_map(unquote(opts)), do: [assigns: unquote(opts)], else: unquote(opts)
+      opts = unquote(opts)
       test_pid = self()
 
       # We need to use agents because fns are not serializable.
