@@ -15,7 +15,7 @@ while keeping the interactivity.
 def deps do
   [
     # For support for LiveView 1.1.0 and Phoenix 1.8:
-    {:live_isolated_component, "~> 0.10.0", only: [:dev, :test]}
+    {:live_isolated_component, "~> 0.11.0", only: [:dev, :test]}
     # For support for LiveView 1.0.0:
     {:live_isolated_component, "~> 0.9.0", only: [:dev, :test]}
     # For support for LiveView 0.20:
